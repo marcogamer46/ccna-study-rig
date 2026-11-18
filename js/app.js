@@ -203,13 +203,25 @@
     var weak = Object.keys(Progress.state.weak).sort(function (a, b) { return Progress.state.weak[b] - Progress.state.weak[a]; }).slice(0, 8);
 
     var sn = Progress.studyNext();
+    var studyBtn = U.el('button', { class: 'btn sm', style: 'margin-top:10px' }, 'Study weak next →');
+    studyBtn.addEventListener('click', function () {
+      var topics = Object.keys(Progress.state.weak).sort(function (a, b) { return Progress.state.weak[b] - Progress.state.weak[a]; }).slice(0, 6);
+      var pool = topics.length ? App.data.questions.filter(function (q) { return topics.indexOf(q.section) !== -1; }) : [];
+      if (!pool.length) {
+        studyBtn.after(U.el('div', { class: 'feedback err' }, 'No quiz questions match your weak topics yet — take a quiz first.'));
+        return;
+      }
+      root.Quiz.startPool(pool);
+      location.hash = '#/quiz';
+    });
     var nextCard = U.el('div', { class: 'card' },
       U.el('h3', null, 'Study next'),
       U.el('p', null, 'Weakest module: <b>' + (sn.module ? 'Module ' + sn.module : '—') + '</b>'),
       weak.length
         ? U.el('div', null, U.el('div', null, 'Weak topics:'),
            weak.map(function (t) { return U.el('span', { class: 'badge', style: 'margin:2px' }, t + ' ×' + Progress.state.weak[t]); }))
-        : U.el('p', null, 'No weak signals yet — take a quiz.'));
+        : U.el('p', null, 'No weak signals yet — take a quiz.'),
+      studyBtn);
 
     var exportBtn = U.el('button', { class: 'btn' }, 'Export JSON');
     var importBtn = U.el('button', { class: 'btn ghost' }, 'Import JSON');
@@ -232,12 +244,13 @@
 
     var cardCt = App.data.flashcards ? App.data.flashcards.length : 0;
     var secDone = Object.keys(Progress.state.sectionsDone).filter(function (k) { return Progress.state.sectionsDone[k]; }).length;
-    var tsimDone = App.data.tsim ? App.data.tsim.scenarios.filter(function (s) { return Progress.tsimDone(s.id); }).length : 0;
+    var tsimData = App.data['tsim-scenarios'];
+    var tsimDone = tsimData ? tsimData.scenarios.filter(function (s) { return Progress.tsimDone(s.id); }).length : 0;
 
     el.appendChild(U.el('div', { class: 'stats' },
       U.el('div', { class: 'stat card' }, U.el('div', { class: 'num' }, secDone), U.el('div', { class: 'lbl' }, 'sections learned')),
       U.el('div', { class: 'stat card' }, U.el('div', { class: 'num' }, cardCt), U.el('div', { class: 'lbl' }, 'flashcards')),
-      U.el('div', { class: 'stat card' }, U.el('div', { class: 'num' }, tsimDone + ' / ' + (App.data.tsim ? App.data.tsim.scenarios.length : 0)), U.el('div', { class: 'lbl' }, 'scenarios solved'))));
+      U.el('div', { class: 'stat card' }, U.el('div', { class: 'num' }, tsimDone + ' / ' + (tsimData ? tsimData.scenarios.length : 0)), U.el('div', { class: 'lbl' }, 'scenarios solved'))));
     el.appendChild(U.el('div', { class: 'grid cols3' }, nextCard, U.el('div', null, modScores)));
     el.appendChild(U.el('div', { class: 'card', style: 'margin-top:14px' },
       U.el('h3', null, 'Backup'),

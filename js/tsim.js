@@ -9,7 +9,7 @@
     el.appendChild(U.el('p', { class: 'view-sub' },
       'Module 17 style: read the topology and symptom, examine the console, and pick the right diagnostic at each step.'));
 
-    var scenarios = App.data.tsim.scenarios;
+    var scenarios = App.data['tsim-scenarios'].scenarios;
     var grid = U.el('div', { class: 'grid cols2' });
     scenarios.forEach(function (s) {
       var done = Progress.tsimDone(s.id);

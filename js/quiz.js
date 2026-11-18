@@ -13,6 +13,7 @@
   }
 
   var session = null;
+  var pendingPool = null;
 
   function begin(questions, timedSeconds) {
     session = {
@@ -21,6 +22,7 @@
       correct: 0,
       perModule: {},
       wrongTags: [],
+      missed: [],
       timed: timedSeconds > 0 ? timedSeconds : null,
       timerLeft: timedSeconds > 0 ? timedSeconds : null,
       timerId: null
@@ -29,6 +31,7 @@
   }
 
   function renderSetup(el) {
+    if (pendingPool && pendingPool.length) { var p = pendingPool; pendingPool = null; begin(p, 0); return; }
     el.innerHTML = '';
     el.appendChild(U.el('h2', { class: 'view-title' }, 'Quiz'));
     el.appendChild(U.el('p', { class: 'view-sub' }, 'Scenario-style, like the CCNA exam. Answers are explained after each question.'));
@@ -87,7 +90,7 @@
       session.perModule[m] = session.perModule[m] || { correct: 0, total: 0 };
       session.perModule[m].total++;
       if (wasCorrect) session.perModule[m].correct++;
-      else session.wrongTags.push(q.section || m);
+      else { session.wrongTags.push(q.section || m); session.missed.push(q); }
       if (session.timerId) { clearInterval(session.timerId); session.timerId = null; }
       var ex = U.el('div', { class: 'feedback ' + (wasCorrect ? 'ok' : 'err') });
       ex.innerHTML = (wasCorrect ? '<b>Correct.</b> ' : '<b>Incorrect.</b> ') + explanationHtml;
@@ -181,9 +184,15 @@
         U.el('p', null, pm.correct + ' / ' + pm.total + ' (' + Math.round(100 * pm.correct / pm.total) + '%)')));
     });
     el.appendChild(row);
-    el.appendChild(U.el('div', { class: 'btnrow' },
+    var btns = [
       U.el('button', { class: 'btn', onclick: function () { Quiz.render(U.$('#view')); } }, 'New quiz'),
-      U.el('button', { class: 'btn ghost', onclick: function () { location.hash = '#/progress'; } }, 'See progress')));
+      U.el('button', { class: 'btn ghost', onclick: function () { location.hash = '#/progress'; } }, 'See progress')
+    ];
+    if (session.missed.length) {
+      btns.unshift(U.el('button', { class: 'btn primary', onclick: function () { begin(session.missed, 0); } },
+        'Review the ' + session.missed.length + ' you missed'));
+    }
+    el.appendChild(U.el('div', { class: 'btnrow' }, btns));
 
     function stat(num, lbl) {
       return U.el('div', { class: 'stat card' }, U.el('div', { class: 'num' }, num), U.el('div', { class: 'lbl' }, lbl));
@@ -191,6 +200,7 @@
   }
 
   root.Quiz = {
-    render: function (el) { renderSetup(el); }
+    render: function (el) { renderSetup(el); },
+    startPool: function (pool) { pendingPool = pool; }
   };
 })(this);
