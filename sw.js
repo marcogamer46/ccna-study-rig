@@ -1,8 +1,8 @@
 /* Minimal service worker: cache every fetched asset for offline use. */
-var CACHE = 'ccna-rig-v2';
+var CACHE = 'ccna-rig-v3';
 var CORE = ['./', 'index.html', 'css/styles.css', 'manifest.webmanifest', 'icons/icon.svg',
   'js/lib/net.js', 'js/lib/ipv6.js', 'js/lib/util.js',
-  'js/app.js', 'js/progress.js', 'js/trainers.js', 'js/quiz.js',
+  'js/app.js', 'js/progress.js', 'js/learn.js', 'js/trainers.js', 'js/quiz.js',
   'js/flashcards.js', 'js/tsim.js',
   'data/content.js'];
 

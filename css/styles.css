@@ -304,3 +304,50 @@ body, .topbar, .nav, .card, .btn, input, select, textarea, .term,
 .data-table th, .data-table td, .iconbtn {
   transition: background-color .25s ease, color .25s ease, border-color .25s ease;
 }
+
+/* ---- KISS Learn + Practice additions ---- */
+.sec-head { margin: 22px 0 10px; }
+.sec-head h3 { margin: 0 0 2px; }
+.sec-head .view-sub { margin: 0; }
+
+.step-title { color: var(--accent); }
+
+.card.inner {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  margin-top: 12px;
+}
+
+.octet-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+.octet {
+  font-family: var(--mono, monospace);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  border: 1px solid var(--border);
+  min-width: 3.4em;
+  text-align: center;
+}
+.octet.net { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
+.octet.host { background: var(--bg-elev); color: var(--text); opacity: .55; }
+.octet.lbl { background: transparent; border-color: transparent; min-width: 0; }
+
+.learn-sentence { font-size: 1.02rem; }
+
+.binrow { font-family: var(--mono, monospace); display: flex; gap: 8px; align-items: center; margin: 2px 0; }
+.binrow .lbl { color: var(--text-dim); width: 3em; }
+
+/* disabled (locked) drill inputs */
+.field input:disabled { opacity: .45; cursor: not-allowed; }
+input.err { border-color: var(--err, #e5484d); }
+.feedback.err { color: var(--err, #e5484d); }
+.feedback.ok { color: var(--ok, #46a758); }
+
+.octet.mix {
+  background: linear-gradient(90deg, var(--accent-dim) 0 55%, var(--bg-elev) 55% 100%);
+  color: var(--text);
+  border-color: var(--accent);
+}

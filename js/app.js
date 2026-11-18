@@ -64,7 +64,8 @@
 
   /* ---------- views ---------- */
   var NAV = [
-    ['trainers', 'Trainers'],
+    ['learn', 'Learn'],
+    ['trainers', 'Practice'],
     ['notes', 'Notes'],
     ['cheatsheet', 'Cheat Sheet'],
     ['flashcards', 'Flashcards'],
@@ -86,9 +87,9 @@
   }
 
   function route() {
-    var hash = location.hash.replace(/^#\/?/, '') || 'trainers';
+    var hash = location.hash.replace(/^#\/?/, '') || 'learn';
     var name = hash.split('?')[0];
-    if (!App.views[name]) name = 'trainers';
+    if (!App.views[name]) name = 'learn';
     document.onkeydown = null; // clear any view-specific key handler
     U.$$('#nav button').forEach(function (b) {
       b.classList.toggle('active', b.dataset.route === name);
@@ -348,6 +349,7 @@
     navigator.serviceWorker.register('sw.js').catch(function () {});
   }
 
+  App.views.learn = root.Learn.render;
   App.views.trainers = root.Trainers.render;
   App.views.flashcards = root.Flashcards.render;
   App.views.quiz = root.Quiz.render;

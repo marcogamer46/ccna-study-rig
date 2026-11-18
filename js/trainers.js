@@ -1,4 +1,6 @@
-/* trainers.js - interactive trainers for IPv4 / IPv6. Attaches to window.Trainers. */
+/* trainers.js - practice tools. Attaches to window.Trainers.
+   Design: one thing at a time. The subnet drill unlocks one field at a time
+   and gives hints instead of dumping the whole solution. */
 (function (root) {
   'use strict';
   var U = root.U, Net = root.Net, V6 = root.V6;
@@ -13,8 +15,7 @@
   }
 
   function feedbackNode() {
-    var node = U.el('div', { class: 'feedback' });
-    return node;
+    return U.el('div', { class: 'feedback' });
   }
 
   function setFeedback(node, kind, html) {
@@ -22,34 +23,31 @@
     node.innerHTML = html;
   }
 
-  /* ============ 1. IPv4 calculator (live) ============ */
+  /* ============ IPv4 calculator (live) ============ */
   function calcWidget() {
     var ipIn = U.el('input', { type: 'text', placeholder: 'e.g. 192.168.10.130' });
     var pfxIn = U.el('input', { type: 'number', min: '0', max: '32', value: '26' });
     var out = U.el('div');
     function run() {
       try {
-        var ip = ipIn.value.trim(), p = parseInt(pfxIn.value, 10);
-        var s = Net.solve(ip, p);
+        var s = Net.solve(ipIn.value.trim(), parseInt(pfxIn.value, 10));
         var rows = [
-          ['Address', '<code>' + U.esc(ip) + '</code>'],
-          ['Prefix', '/' + p + '  (' + U.esc(s.mask) + ')'],
+          ['Address', '<code>' + U.esc(ipIn.value.trim()) + '</code>'],
+          ['Prefix', '/' + s.prefix + '  (' + U.esc(s.mask) + ')'],
           ['Network', '<code>' + U.esc(s.network) + '</code>'],
           ['Broadcast', '<code>' + U.esc(s.broadcast) + '</code>'],
           ['First host', '<code>' + U.esc(s.firstHost) + '</code>'],
           ['Last host', '<code>' + U.esc(s.lastHost) + '</code>'],
           ['Usable hosts', s.usableHosts + '  (2^' + s.hostBits + ' − 2)'],
-          ['Subnet size (magic)', s.increment],
-          ['Host bits', s.hostBits]
+          ['Block size (magic)', s.increment + '  — ' + s.hostBits + ' host bits']
         ];
-        var bin = U.el('div', { class: 'solution' },
-          U.el('h4', null, 'Binary AND (toggle)'),
-          U.el('div', { class: 'binrow' }, U.el('span', { class: 'lbl' }, 'IP  '), U.el('span', null, s.binary.ip.join(' '))),
-          U.el('div', { class: 'binrow' }, U.el('span', { class: 'lbl' }, 'MSK '), U.el('span', null, s.binary.mask.join(' '))),
-          U.el('div', { class: 'binrow' }, U.el('span', { class: 'lbl' }, 'NET '), U.el('span', null, s.binary.network.join(' '))));
         out.innerHTML = '';
         out.appendChild(U.table({ headers: ['Property', 'Value'], rows: rows }, {}));
-        out.appendChild(bin);
+        out.appendChild(U.el('div', { class: 'solution' },
+          U.el('h4', null, 'Binary AND (the network is IP AND mask)'),
+          U.el('div', { class: 'binrow' }, U.el('span', { class: 'lbl' }, 'IP  '), U.el('span', null, s.binary.ip.join(' '))),
+          U.el('div', { class: 'binrow' }, U.el('span', { class: 'lbl' }, 'MSK '), U.el('span', null, s.binary.mask.join(' '))),
+          U.el('div', { class: 'binrow' }, U.el('span', { class: 'lbl' }, 'NET '), U.el('span', null, s.binary.network.join(' ')))));
       } catch (e) {
         out.innerHTML = '';
         out.appendChild(U.el('div', { class: 'feedback err' }, U.esc(e.message)));
@@ -64,40 +62,60 @@
       out);
   }
 
-  /* ============ 2. subnet facts drill ============ */
+  /* ============ subnet drill — progressive, one field at a time ============ */
+  var FIELDS = [
+    { key: 'network', label: 'Network address', kind: 'ip' },
+    { key: 'broadcast', label: 'Broadcast address', kind: 'ip' },
+    { key: 'first', label: 'First usable host', kind: 'ip' },
+    { key: 'last', label: 'Last usable host', kind: 'ip' },
+    { key: 'hosts', label: 'Usable hosts', kind: 'int' },
+    { key: 'subnets', label: 'Subnets (from /base)', kind: 'int' }
+  ];
+
   function factsDrill() {
     var diff = U.el('select', null,
       U.el('option', { value: 'within' }, 'Within an octet (/24 carve)'),
       U.el('option', { value: 'octets' }, 'Across octets (/16 or /8)'),
       U.el('option', { value: 'boundary' }, 'Octet boundary (/16 → /24)'));
     var genBtn = U.el('button', { class: 'btn' }, 'New problem');
-    var binToggle = U.toggleInput('show binary', false, function () { if (cur) paintSolution(); });
+    var binToggle = U.toggleInput('show binary', false, function (on) { binActive = on; if (sol.innerHTML) paintSolution(); });
     var head = U.el('div', { class: 'btnrow' }, diff, genBtn);
     var prob = U.el('pre', { class: 'mono' });
-    var fields = {};
-    ['network', 'broadcast', 'first', 'last', 'hosts', 'subnets'].forEach(function (k) {
-      fields[k] = U.el('input', { type: 'text', placeholder: '?' });
-    });
-    var checkBtn = U.el('button', { class: 'btn primary' }, 'Check answers');
+
+    var inputs = {};
+    FIELDS.forEach(function (f) { inputs[f.key] = U.el('input', { type: 'text', placeholder: '?' }); });
+
+    var checkBtn = U.el('button', { class: 'btn primary' }, 'Check');
+    var hintBtn = U.el('button', { class: 'btn ghost sm' }, 'Hint');
+    var solBtn = U.el('button', { class: 'btn ghost sm' }, 'Full solution');
     var fb = feedbackNode();
     var sol = U.el('div', { class: 'solution' });
-    var wrap = U.el('div', null, head, prob,
-      U.el('div', { class: 'grid cols2' },
-        U.el('div', null, field('Network', fields.network), field('Broadcast', fields.broadcast), field('First host', fields.first), field('Last host', fields.last)),
-        U.el('div', null, field('Usable hosts', fields.hosts), field('Subnets from /base', fields.subnets))),
-      U.el('div', { class: 'btnrow' }, checkBtn, binToggle), fb, sol);
 
-    var cur = null;
-    function showProblem() {
-      var p = Net.randomProblem(diff.value);
-      cur = p;
-      prob.textContent = 'Problem:  ' + p.ip + ' /' + p.prefix + '   (carve from /' + p.basePrefix + ')';
-      Object.keys(fields).forEach(function (k) { fields[k].value = ''; fields[k].className = ''; });
-      setFeedback(fb, 'info', 'Type your answers, then hit Check.');
-      sol.innerHTML = '';
+    var S = { p: null, cur: 0, tries: {}, solved: {} };
+    var binActive = false;
+
+    function expectedVal(key) {
+      var p = S.p;
+      switch (key) {
+        case 'network': return p.network;
+        case 'broadcast': return p.broadcast;
+        case 'first': return p.firstHost;
+        case 'last': return p.lastHost;
+        case 'hosts': return String(p.usableHosts);
+        case 'subnets': return String(p.subnetsFromBase);
+      }
+    }
+    function normIp(v) { try { return Net.ipToInt(v); } catch (e) { return null; } }
+    function isOk(key, val) {
+      var f = FIELDS.filter(function (x) { return x.key === key; })[0];
+      if (f.kind === 'ip') {
+        var a = normIp(val), b = normIp(expectedVal(key));
+        return a !== null && a === b;
+      }
+      return String(val.trim()) === expectedVal(key);
     }
     function paintSolution() {
-      var p = cur, s = Net.solve(p.ip, p.prefix);
+      var p = S.p, s = Net.solve(p.ip, p.prefix);
       sol.innerHTML = '';
       sol.appendChild(U.el('h4', null, 'Worked solution (magic number method)'));
       sol.appendChild(U.el('p', null, U.esc(s.magicNote)));
@@ -106,10 +124,7 @@
         rows: [
           ['Host bits', '32 − /' + p.prefix + ' = ' + s.hostBits],
           ['Block size (magic number)', '2^' + s.hostBits + ' = ' + s.increment +
-            (function () {
-              var mo = parseInt(s.mask.split('.').pop(), 10);
-              return p.basePrefix === 24 ? '  (256 − ' + mo + ' = ' + s.increment + ', last octet)' : '';
-            })()],
+            (function () { var mo = parseInt(s.mask.split('.').pop(), 10); return p.basePrefix === 24 ? '  (256 − ' + mo + ' = ' + s.increment + ', last octet)' : ''; })()],
           ['Number of subnets', '2^(' + p.prefix + ' − /' + p.basePrefix + ') = ' + p.subnetsFromBase],
           ['Network (IP AND mask)', '<b>' + U.esc(s.network) + '</b>'],
           ['First host', '<code>' + U.esc(s.firstHost) + '</code>'],
@@ -118,45 +133,100 @@
           ['Usable hosts', '2^' + s.hostBits + ' − 2 = ' + s.usableHosts]
         ]
       }), {});
-      if (binToggle.querySelector('input').checked) {
+      if (binActive) {
         sol.appendChild(U.el('h4', null, 'Binary'));
         sol.appendChild(U.el('div', { class: 'binrow' }, U.el('span', { class: 'lbl' }, 'IP '), U.el('span', null, s.binary.ip.join(' '))));
         sol.appendChild(U.el('div', { class: 'binrow' }, U.el('span', { class: 'lbl' }, 'MSK'), U.el('span', null, s.binary.mask.join(' '))));
         sol.appendChild(U.el('div', { class: 'binrow' }, U.el('span', { class: 'lbl' }, 'NET'), U.el('span', null, s.binary.network.join(' '))));
       }
     }
-    function check() {
-      var p = cur; if (!p) return;
-      var good = 0, total = 0, bad = [];
-      function expect(fieldKey, expectedStr) {
-        total++;
-        var v = fields[fieldKey].value.trim();
-        try { if (Net.ipToInt(v) === Net.ipToInt(expectedStr)) { good++; fields[fieldKey].className = ''; } else { fields[fieldKey].className = 'err'; bad.push(fieldKey); } }
-        catch (e) { fields[fieldKey].className = 'err'; bad.push(fieldKey); }
-      }
-      expect('network', p.network);
-      expect('broadcast', p.broadcast);
-      expect('first', p.firstHost);
-      expect('last', p.lastHost);
-      total++;
-      if (String(fields.hosts.value.trim()) === String(p.usableHosts)) { good++; fields.hosts.className = ''; }
-      else { fields.hosts.className = 'err'; bad.push('hosts'); }
-      total++;
-      if (String(fields.subnets.value.trim()) === String(p.subnetsFromBase)) { good++; fields.subnets.className = ''; }
-      else { fields.subnets.className = 'err'; bad.push('subnets'); }
-      setFeedback(fb, good === total ? 'ok' : 'err',
-        good === total
-          ? '<b>All correct.</b> Nice. Show solution to review the steps.'
-          : '<b>' + good + '/' + total + ' correct.</b> Wrong: ' + bad.join(', ') + '. Show solution to see the steps.');
-      paintSolution();
+    function hintText(key) {
+      var p = S.p, s = Net.solve(p.ip, p.prefix);
+      var t = S.tries[key] || 0;
+      var lines = {
+        network: [
+          'Network = IP AND mask. It is always the first address of a block.',
+          'Block size is ' + s.increment + ' (256 − last mask octet). Subnet starts: ' +
+            Net.enumerateSubnets(p.ip, p.basePrefix, p.prefix).slice(0, 4).map(function (r) { return r.network.split('.').pop(); }).join(', ') + ' …'
+        ],
+        broadcast: ['Broadcast = network + block − 1.', 'With block ' + s.increment + ': ' + s.network + ' → ' + s.broadcast + '.'],
+        first: ['First usable host = network + 1.', '→ ' + s.firstHost],
+        last: ['Last usable host = broadcast − 1.', '→ ' + s.lastHost],
+        hosts: ['Usable hosts = 2^h − 2.', '2^' + s.hostBits + ' − 2 = ' + s.usableHosts],
+        subnets: ['Subnets = 2^(newPrefix − base).', '2^(' + p.prefix + ' − ' + p.basePrefix + ') = ' + p.subnetsFromBase]
+      };
+      var arr = lines[key];
+      return arr[Math.min(t, arr.length - 1)];
     }
-    genBtn.addEventListener('click', showProblem);
+    function renderFields() {
+      FIELDS.forEach(function (f, i) {
+        inputs[f.key].disabled = !(S.solved[f.key] || i === S.cur);
+      });
+    }
+    function newProblem() {
+      S.p = Net.randomProblem(diff.value);
+      S.cur = 0; S.tries = {}; S.solved = {}; binActive = false;
+      prob.textContent = 'Problem: ' + S.p.ip + ' /' + S.p.prefix + '   (carve from /' + S.p.basePrefix + ')';
+      FIELDS.forEach(function (f) { inputs[f.key].value = ''; inputs[f.key].className = ''; });
+      setFeedback(fb, 'info', 'Find the network first — the next field unlocks when you get it right.');
+      sol.innerHTML = '';
+      renderFields();
+    }
+    function check() {
+      var p = S.p; if (!p) return;
+      var f = FIELDS[S.cur];
+      var ok = isOk(f.key, inputs[f.key].value);
+      if (ok) {
+        S.solved[f.key] = true;
+        inputs[f.key].className = '';
+        if (S.cur === FIELDS.length - 1) {
+          setFeedback(fb, 'ok', '<b>All correct!</b> That is the whole subnet. Hit “New problem” for another.');
+          paintSolution();
+        } else {
+          S.cur++;
+          setFeedback(fb, 'ok', '✓ ' + f.label + ' correct. Now: <b>' + FIELDS[S.cur].label.toLowerCase() + '</b>.');
+          renderFields();
+        }
+      } else {
+        S.tries[f.key] = (S.tries[f.key] || 0) + 1;
+        inputs[f.key].className = 'err';
+        setFeedback(fb, 'err', 'Not quite. ' + hintText(f.key));
+      }
+    }
     checkBtn.addEventListener('click', check);
-    showProblem();
-    return wrap;
+    hintBtn.addEventListener('click', function () {
+      if (!S.p) return;
+      var f = FIELDS[S.cur];
+      S.tries[f.key] = (S.tries[f.key] || 0) + 1;
+      setFeedback(fb, 'info', 'Hint: ' + hintText(f.key));
+    });
+    solBtn.addEventListener('click', function () { if (S.p) paintSolution(); });
+    FIELDS.forEach(function (f) {
+      inputs[f.key].addEventListener('keydown', function (e) { if (e.key === 'Enter') check(); });
+    });
+
+    var qref = U.collapse('Magic-number quick reference', (function () {
+      var rows = [];
+      [26, 27, 28, 29, 30].forEach(function (pf) {
+        var s = Net.solve('192.168.1.0', pf);
+        rows.push(['/' + pf, s.mask.split('.').pop(), s.increment, s.usableHosts]);
+      });
+      return U.table({ headers: ['Prefix', 'Mask (last octet)', 'Block', 'Hosts'], rows: rows }, {});
+    })());
+
+    genBtn.addEventListener('click', newProblem);
+    newProblem();
+    return U.el('div', null, head, prob,
+      U.el('div', { class: 'grid cols2' },
+        U.el('div', null, FIELDS.map(function (f) { return field(f.label, inputs[f.key]); })),
+        U.el('div', null,
+          U.el('div', { class: 'btnrow' }, checkBtn, hintBtn, solBtn),
+          U.el('div', { class: 'btnrow' }, binToggle),
+          fb, sol)),
+      qref);
   }
 
-  /* ============ 3. requirement drill (N subnets / N hosts) ============ */
+  /* ============ requirement drill (N subnets / N hosts) ============ */
   function reqDrill() {
     var mode = U.el('select', null,
       U.el('option', { value: 'subnets' }, 'I need N subnets'),
@@ -178,7 +248,7 @@
       var basePrefix = Math.random() < 0.5 ? 24 : 16;
       var target;
       if (mode.value === 'subnets') {
-        var n = 2 + Math.floor(Math.random() * 14); // 2..15 subnets
+        var n = 2 + Math.floor(Math.random() * 14);
         target = Net.prefixForSubnets(basePrefix, n);
         cur = { kind: 'subnets', basePrefix: basePrefix, n: n, target: target };
         baseOut.textContent = 'Base network prefix: /' + basePrefix + '\nQuestion: I need ' + n + ' subnets. What prefix length?';
@@ -188,8 +258,7 @@
         cur = { kind: 'hosts', basePrefix: basePrefix, n: h, target: target };
         baseOut.textContent = 'Base network prefix: /' + basePrefix + '\nQuestion: I need ' + h + ' usable hosts per subnet. What prefix length?';
       }
-      pfxIn.value = '';
-      pfxIn.className = '';
+      pfxIn.value = ''; pfxIn.className = '';
       setFeedback(fb, 'info', 'Enter the new prefix length (just the number).');
       sol.innerHTML = '';
     }
@@ -222,17 +291,16 @@
     return wrap;
   }
 
-  /* ============ 4. VLSM planner ============ */
+  /* ============ VLSM planner ============ */
   function vlsmWidget() {
     var baseIn = U.el('input', { type: 'text', placeholder: '192.168.10.0/24', value: '192.168.10.0/24' });
-    var reqsIn = U.el('textarea', { rows: '4', placeholder: 'one requirement per line, largest first or any order:\nSales = 60\nHR = 30\nIT = 10\nMgmt = 2' });
+    var reqsIn = U.el('textarea', { rows: '4', placeholder: 'one per line, any order:\nSales = 60\nHR = 30\nIT = 10\nMgmt = 2' });
     var goBtn = U.el('button', { class: 'btn primary' }, 'Plan');
     var out = U.el('div');
     var wrap = U.el('div', null,
       field('Base network (ip/prefix)', baseIn),
       field('Host requirements (name = hosts)', reqsIn),
       U.el('div', { class: 'btnrow' }, goBtn), out);
-
     function plan() {
       out.innerHTML = '';
       var m = /^([\d.]+)\/(\d+)$/.exec(baseIn.value.trim());
@@ -265,16 +333,13 @@
     return wrap;
   }
 
-  /* ============ IPv6 helpers for trainers ============ */
-  function randHextet() {
-    return Math.floor(Math.random() * 65536).toString(16);
-  }
+  /* ============ IPv6 helpers ============ */
+  function randHextet() { return Math.floor(Math.random() * 65536).toString(16); }
   function pad4(s) { while (s.length < 4) s = '0' + s; return s; }
   function fullV6(forceZeros) {
     var tokens = [];
     for (var i = 0; i < 8; i++) tokens.push(pad4(randHextet()));
     if (forceZeros) {
-      // inject a run of 2-4 zeros and sprinkle a leading-zero hextet
       var start = 1 + Math.floor(Math.random() * 3);
       var len = 2 + Math.floor(Math.random() * 3);
       for (var j = start; j < Math.min(8, start + len); j++) tokens[j] = '0000';
@@ -285,7 +350,7 @@
     return tokens.join(':');
   }
 
-  /* ============ 5. IPv6 abbreviator ============ */
+  /* ============ IPv6 abbreviator ============ */
   function abbrDrill() {
     var genBtn = U.el('button', { class: 'btn' }, 'New address');
     var prompt = U.el('pre', { class: 'mono' });
@@ -298,10 +363,9 @@
       prompt, field('Your answer', inEl),
       U.el('div', { class: 'btnrow' }, checkBtn, revealBtn), fb);
     var full = null;
-
     function newOne() {
       full = fullV6(true);
-      prompt.textContent = 'Expand / abbreviate:\n' + full;
+      prompt.textContent = 'Abbreviate:\n' + full;
       inEl.value = ''; inEl.className = '';
       setFeedback(fb, 'info', 'Rules: omit leading zeros; collapse the LONGEST run of zero hextets to :: exactly once (leftmost on ties).');
     }
@@ -309,12 +373,8 @@
       var user = inEl.value.trim();
       var canon = V6.abbreviate(full);
       try {
-        var u = V6.parseFull(user);
-        var t = V6.parseFull(full);
-        if (u.join() !== t.join()) {
-          setFeedback(fb, 'err', 'That does not represent the same address — count the hextets / check for a stray colon.');
-          return;
-        }
+        var u = V6.parseFull(user), t = V6.parseFull(full);
+        if (u.join() !== t.join()) { setFeedback(fb, 'err', 'That does not represent the same address.'); return; }
       } catch (e) { setFeedback(fb, 'err', 'Unparseable: ' + U.esc(e.message)); return; }
       if (user.toLowerCase().replace(/\s+/g, '') === canon) {
         inEl.className = '';
@@ -332,20 +392,17 @@
         if (clean.indexOf('::') !== -1 && canon.indexOf('::') === -1) hints.push('there is no run of 2+ zero hextets to collapse');
         if (/::.*::/.test(clean)) hints.push('only one :: is allowed');
         if (/0[0-9a-f]/.test(clean)) hints.push('remove leading zeros from hextets');
-        if (/[A-Z]/.test(user)) hints.push('lowercase is standard (matches here, but keep lowercase)');
         setFeedback(fb, 'err', 'Not the shortest form. Hint: ' + (hints.join('; ') || 'compare against the reveal'));
       }
     }
     genBtn.addEventListener('click', newOne);
     checkBtn.addEventListener('click', check);
-    revealBtn.addEventListener('click', function () {
-      setFeedback(fb, 'info', 'Shortest form: <code>' + U.esc(V6.abbreviate(full)) + '</code>');
-    });
+    revealBtn.addEventListener('click', function () { setFeedback(fb, 'info', 'Shortest form: <code>' + U.esc(V6.abbreviate(full)) + '</code>'); });
     newOne();
     return wrap;
   }
 
-  /* ============ 6. IPv6 expander ============ */
+  /* ============ IPv6 expander ============ */
   function expandDrill() {
     var genBtn = U.el('button', { class: 'btn' }, 'New address');
     var prompt = U.el('pre', { class: 'mono' });
@@ -367,25 +424,19 @@
     }
     function check() {
       try {
-        var u = V6.parseFull(inEl.value.trim());
-        var t = V6.parseFull(canon);
+        var u = V6.parseFull(inEl.value.trim()), t = V6.parseFull(canon);
         if (u.join() === t.join()) { inEl.className = ''; setFeedback(fb, 'ok', 'Correct: <code>' + U.esc(u.join(':')) + '</code>'); }
-        else {
-          inEl.className = 'err';
-          setFeedback(fb, 'err', 'Not a match. You have ' + u.length + ' groups; expect 8. Each hextet must be 4 hex digits.');
-        }
+        else { inEl.className = 'err'; setFeedback(fb, 'err', 'Not a match. Expect 8 groups of 4 hex digits.'); }
       } catch (e) { inEl.className = 'err'; setFeedback(fb, 'err', 'Unparseable: ' + U.esc(e.message)); }
     }
     genBtn.addEventListener('click', newOne);
     checkBtn.addEventListener('click', check);
-    revealBtn.addEventListener('click', function () {
-      setFeedback(fb, 'info', 'Full form: <code>' + U.esc(V6.parseFull(canon).join(':')) + '</code>');
-    });
+    revealBtn.addEventListener('click', function () { setFeedback(fb, 'info', 'Full form: <code>' + U.esc(V6.parseFull(canon).join(':')) + '</code>'); });
     newOne();
     return wrap;
   }
 
-  /* ============ 7. EUI-64 converter + drill ============ */
+  /* ============ EUI-64 ============ */
   function euiWidget() {
     var macIn = U.el('input', { type: 'text', placeholder: '00:1C:42:AB:CD:EF', value: '00:1C:42:AB:CD:EF' });
     var goBtn = U.el('button', { class: 'btn' }, 'Convert');
@@ -396,7 +447,6 @@
     var drillFb = feedbackNode();
     var drillPrompt = U.el('pre', { class: 'mono' });
     var curMac = null;
-
     function convert() {
       out.innerHTML = '';
       try {
@@ -411,7 +461,7 @@
           ]
         }, {}));
         out.appendChild(U.el('div', { class: 'feedback info' },
-          'U/L bit: the second-least-significant bit of the first octet. ' +
+          'U/L bit: second-least-significant bit of the first octet. ' +
           '0x' + r.flippedOldHex + ' → 0x' + r.flippedNewHex + ' sets the locally-administered flag.'));
       } catch (e) { out.appendChild(U.el('div', { class: 'feedback err' }, U.esc(e.message))); }
     }
@@ -444,7 +494,7 @@
       U.el('div', { class: 'btnrow' }, drillCheck), drillFb);
   }
 
-  /* ============ 8. IPv6 type identifier ============ */
+  /* ============ IPv6 type identifier ============ */
   function typeDrill() {
     var pool = [
       ['2001:db8:1::1', 'Global unicast'],
@@ -491,7 +541,7 @@
     return wrap;
   }
 
-  /* ============ 9. IPv6 subnet ID (/48 → /64) ============ */
+  /* ============ IPv6 subnet ID ============ */
   function subnetIdWidget() {
     var genBtn = U.el('button', { class: 'btn' }, 'New /48');
     var prompt = U.el('pre', { class: 'mono' });
@@ -542,21 +592,40 @@
 
   /* ============ render ============ */
   root.Trainers = {
+    factsDrill: factsDrill,
     render: function (el) {
       el.innerHTML = '';
-      el.appendChild(U.el('h2', { class: 'view-title' }, 'Trainers'));
-      el.appendChild(U.el('p', { class: 'view-sub' }, 'Active practice, not passive reading. The math below is the same engine the tests verify.'));
-      var grid = U.el('div', { class: 'grid cols2' });
-      grid.appendChild(card('IPv4 Calculator', calcWidget()));
-      grid.appendChild(card('Subnetting drill (magic number)', factsDrill()));
-      grid.appendChild(card('“I need N subnets / N hosts”', reqDrill()));
-      grid.appendChild(card('VLSM planner', vlsmWidget()));
-      grid.appendChild(card('IPv6 abbreviator', abbrDrill()));
-      grid.appendChild(card('IPv6 expander', expandDrill()));
-      grid.appendChild(card('EUI-64 converter + drill', euiWidget()));
-      grid.appendChild(card('IPv6 address type identifier', typeDrill()));
-      grid.appendChild(card('IPv6 subnet ID (/48 → /64)', subnetIdWidget()));
-      el.appendChild(grid);
+      el.appendChild(U.el('h2', { class: 'view-title' }, 'Practice'));
+      el.appendChild(U.el('p', { class: 'view-sub' }, 'Pick one card. Every drill asks one thing at a time — nothing here is a test yet.'));
+
+      var hero = U.el('div', { class: 'card', style: 'margin-bottom:16px' });
+      hero.appendChild(U.el('p', null,
+        U.el('strong', null, 'First time? '), 'Spend 2 minutes on the Learn tab first — it builds the picture, then come back here. ',
+        U.el('button', { class: 'btn primary sm', onclick: function () { location.hash = '#/learn'; } }, 'Go to Learn →')));
+      el.appendChild(hero);
+
+      function section(title, desc) {
+        return U.el('div', { class: 'sec-head' },
+          U.el('h3', null, title),
+          desc ? U.el('p', { class: 'view-sub' }, desc) : null);
+      }
+
+      el.appendChild(section('Subnetting · IPv4', 'The subnet drill is the star: it unlocks one field at a time, so you never face six boxes at once.'));
+      var g1 = U.el('div', { class: 'grid cols2' });
+      g1.appendChild(card('Subnet drill', factsDrill()));
+      g1.appendChild(card('“I need N subnets / N hosts”', reqDrill()));
+      g1.appendChild(card('IPv4 Calculator (see any address broken apart)', calcWidget()));
+      g1.appendChild(card('VLSM planner', vlsmWidget()));
+      el.appendChild(g1);
+
+      el.appendChild(section('IPv6', 'Different numbering, same idea. Practice abbreviating, expanding, and classifying.'));
+      var g2 = U.el('div', { class: 'grid cols2' });
+      g2.appendChild(card('IPv6 abbreviator', abbrDrill()));
+      g2.appendChild(card('IPv6 expander', expandDrill()));
+      g2.appendChild(card('EUI-64 converter', euiWidget()));
+      g2.appendChild(card('Address type identifier', typeDrill()));
+      g2.appendChild(card('Subnet ID /48 → /64', subnetIdWidget()));
+      el.appendChild(g2);
     }
   };
 })(this);

@@ -21,10 +21,13 @@ python3 -m http.server 8000   # → http://localhost:8000
 
 ## Features
 
-- **Trainers** — subnetting drill (magic-number method, with show-binary worked solutions),
-  "I need N subnets / N hosts", VLSM planner, IPv4 calculator with visual binary AND, IPv6
-  abbreviator/expander, EUI-64 converter (bit-flip highlighted), IPv6 type identifier, /48→/64
-  subnet-ID drill.
+- **Learn** — a 2-minute guided walkthrough (address/mask picture with live highlight, the
+  terms in one line each, and the magic-number trick) that builds intuition before any drilling.
+  This is the default tab for a reason.
+- **Practice** (trainers) — subnetting drill that *unlocks one field at a time* with progressive
+  hints (no more six empty boxes at once), "I need N subnets / N hosts", VLSM planner, IPv4
+  calculator with visual binary AND, IPv6 abbreviator/expander, EUI-64 converter (bit-flip
+  highlighted), IPv6 type identifier, /48→/64 subnet-ID drill.
 - **Notes** — condensed section-by-section notes, collapsible, with comparison tables; check
   "learned" on a section to feed Progress.
 - **Cheat sheet** — searchable command list (host + IOS) with syntax, purpose, sample output.
