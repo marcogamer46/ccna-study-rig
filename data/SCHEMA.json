@@ -1,0 +1,98 @@
+{
+  "_doc": "Authoritative schema for all content data files. Each generator agent must READ this file, produce the file it owns, and match the schema exactly. Valid JSON required. No trailing commas, no comments inside JSON.",
+  "_scope": "Only CCNA v7 ITN Modules 11, 12, 17 and the exact sections listed below. Exclude instructor-only slides (Planning Guide, Best Practices, Activities lists, 'What to Expect'). Do not invent facts, commands, ports, or flags outside the curriculum; when unsure, omit rather than guess.",
+  "_sections": {
+    "11": "11.1 address structure (network/host portions, subnet mask, prefix length, logical AND); 11.2 unicast/broadcast/multicast; 11.3 public vs private (RFC1918: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16), special-use (loopback 127.0.0.0/8, link-local 169.254.0.0/16, TEST-NET 192.0.2.0/24), legacy classful (A/B/C default masks); 11.4 network segmentation, broadcast domains; 11.5 subnetting on and within an octet boundary, magic-number method; 11.6 subnetting a /16 and /8 across multiple octets; 11.7 subnetting to meet host/subnet requirements; 11.8 VLSM (variable-length subnet mask); 11.9 structured design / address planning.",
+    "12": "12.1 IPv4 issues + coexistence (dual stack, tunneling, translation); 12.2 representation (omit leading zeros, double-colon once for longest zero run); 12.3 address types: unicast (GUA 2000::/3, LLA fe80::/10, ULA fc00::/7), multicast ff00::/8, anycast (same format as unicast), loopback ::1, unspecified ::, prefix lengths; 12.4 static GUA/LLA config on router and Windows (netsh); 12.5 dynamic: RS/RA, SLAAC, SLAAC+stateless DHCPv6, stateful DHCPv6, EUI-64 vs random interface IDs; 12.6 dynamic LLAs, verification commands; 12.7 multicast well-known (ff02::1, ff02::2, ff02::5, ff02::9, ff02::a) and solicited-node ff02::1:ff00:0/104; 12.8 IPv6 subnetting via Subnet ID (e.g. /48 -> /64 gives 65536 subnets).",
+    "17": "17.1 devices, topologies, redundancy, traffic management; 17.2 applications/protocols, TCP/UDP, well-known ports, voice/video (QoS); 17.3 scaling, protocol analysis (Wireshark); 17.4 verify connectivity: ping, extended ping, traceroute/tracert, extended traceroute, baselines; 17.5 host and IOS commands: ipconfig /all, ifconfig, ip addr, arp -a, show cdp neighbors, show ip interface brief, show ipv6 interface brief, show version; 17.6 troubleshooting methodology: top-down, bottom-up, divide-and-conquer, debug, terminal monitor, resolve or escalate; 17.7 scenarios: duplex mismatch, IP addressing issues, default gateway, DNS."
+  },
+  "_style": "Concise, exam-focused, built for active recall by a 2nd-year IT student. Scenario-style questions like a CCNA exam, not just definitions. Plain string values (no markdown backticks inside JSON). Academic accuracy only; no fluff, no disclaimers.",
+  "notes.json": {
+    "module": "Full module by module, section by section condensed notes. One entry per required section.",
+    "shape": {
+      "modules": [
+        {
+          "id": 11,
+          "title": "IPv4 Addressing",
+          "sections": [
+            {
+              "id": "11.1",
+              "title": "Address Structure",
+              "summary": "1-3 sentence gist",
+              "points": ["concise bullet takeaways"],
+              "tables": [{ "caption": "optional", "headers": ["A","B"], "rows": [["a","b"]] }],
+              "examples": [{ "label": "optional", "code": "snippet", "note": "optional" }]
+            }
+          ]
+        }
+      ]
+    },
+    "requirements": "Every section id from _sections must appear exactly once. Use tables where the sections compare things (public vs private ranges, unicast vs broadcast vs multicast, classful, SLAAC vs stateless DHCPv6 vs stateful DHCPv6, troubleshooting methods, address types). Keep points tight - 3-6 per section."
+  },
+  "flashcards.json": {
+    "module": "Spaced-repetition cards across all three modules.",
+    "shape": {
+      "cards": [
+        {
+          "id": "f0001",
+          "front": "question / term / command",
+          "back": "answer",
+          "tags": ["ipv4","subnetting"],
+          "type": "term|command|range|port|concept"
+        }
+      ]
+    },
+    "requirements": "At least 140 cards. Cover: terms, commands (IOS + host), address ranges (RFC1918, special-use, multicast, IPv6 types), well-known ports (HTTP 80, HTTPS 443, DNS 53, DHCP 67/68, Telnet 23, SSH 22, FTP 20/21, TFTP 69, SNMP 161, SMTP 25, POP3 110, IMAP 143), IPv6 specifics, subnetting formulas (2^n, 2^h - 2, magic number), and Module 17 commands/verification. Front should be short; back should be the precise fact or one-liner. Balance across modules - no module neglected."
+  },
+  "questions.json": {
+    "module": "Quiz questions: multiple-choice and type-the-command. Scenario-style like CCNA exams.",
+    "shape": {
+      "questions": [
+        {
+          "id": "q0001",
+          "module": 11,
+          "section": "11.5",
+          "type": "mcq|cmd",
+          "stem": "question text (scenario-style preferred)",
+          "options": ["a","b","c","d"],
+          "answer": 1,
+          "explanation": "why this is correct + why distractors are wrong"
+        },
+        {
+          "id": "q0002",
+          "module": 17,
+          "section": "17.5",
+          "type": "cmd",
+          "stem": "You need X, what command?",
+          "answer": "ipconfig /all",
+          "accepted": ["ipconfig /all"],
+          "explanation": "short"
+        }
+      ]
+    },
+    "requirements": "At least 70 questions, balanced across modules 11/12/17. Include: subnetting calculations (student must compute network/broadcast/hosts/mask), magic-number questions, VLSM planning, IPv6 abbreviation/expansion, EUI-64, address-type classification, and Module 17 scenario/diagnosis questions. The marked MCQ answer MUST be strictly correct - recompute any math the stem requires. For cmd type, give exact command and 1-2 accepted spellings. Explanations must teach, not just restate."
+  },
+  "cheatsheet.json": {
+    "module": "Searchable command cheat sheet - every host/IOS command from these modules.",
+    "shape": {
+      "commands": [
+        {
+          "id": "c0001",
+          "module": 17,
+          "section": "17.4",
+          "name": "ping",
+          "category": "Verification",
+          "os": "IOS / Windows / Linux / Cisco",
+          "syntax": "ping [options] <destination>",
+          "desc": "what it does, when to use it",
+          "sample": "short representative output snippet"
+        }
+      ]
+    },
+    "requirements": "Cover at least: ping, extended ping, traceroute (Cisco) and tracert (Windows) and traceroute (Linux), ipconfig /all, ifconfig, ip addr, arp -a, show cdp neighbors, show ip interface brief, show ipv6 interface brief, show version, show ip route, show interfaces, show running-config, debug ip icmp, terminal monitor, undebug all, no shutdown, ip address, ipv6 address, ipv6 unicast-routing, hostname, enable, configure terminal, copy running-config startup-config, and any IPv6 verification commands from Module 12. Sample outputs should look like real Cisco/OS output but can be abbreviated. Keep desc 1-3 sentences."
+  },
+  "tsim-scenarios.json": {
+    "module": "Hand-scripted by the main developer. Do NOT generate.",
+    "shape": {}
+  }
+}

@@ -1,0 +1,1107 @@
+{
+  "questions": [
+    {
+      "id": "q0001",
+      "module": 11,
+      "section": "11.1",
+      "type": "mcq",
+      "stem": "A network administrator applies the subnet mask 255.255.255.0 to the host 192.168.1.45. Which octets identify the network portion of the address?",
+      "options": [
+        "The first three octets (192.168.1)",
+        "Only the first octet (192)",
+        "Only the last octet (45)",
+        "All four octets"
+      ],
+      "answer": 0,
+      "explanation": "The subnet mask marks which bits are the network portion. With 255.255.255.0, the first three octets are all ones (network) and the last octet is zeros (host), so the network is 192.168.1.0. The other choices misread which bits the mask forces to be network bits."
+    },
+    {
+      "id": "q0002",
+      "module": 11,
+      "section": "11.1",
+      "type": "mcq",
+      "stem": "What prefix length is equivalent to the subnet mask 255.255.255.0?",
+      "options": ["/16", "/24", "/32", "/8"],
+      "answer": 1,
+      "explanation": "A slash-prefix is the number of consecutive 1 bits in the mask. 255.255.255.0 has 24 ones, so it is /24. A /16 is 255.255.0.0, a /32 is 255.255.255.255, and a /8 is 255.0.0.0."
+    },
+    {
+      "id": "q0003",
+      "module": 11,
+      "section": "11.1",
+      "type": "mcq",
+      "stem": "A host has the IPv4 address 192.168.10.35 with mask 255.255.255.224. Using a logical AND of the address and the mask, what is the network address?",
+      "options": [
+        "192.168.10.0",
+        "192.168.10.32",
+        "192.168.10.64",
+        "192.168.10.224"
+      ],
+      "answer": 1,
+      "explanation": "Convert the last octet to binary: 35 is 00100011 and 224 is 11100000. AND them: 00100000 = 32. The network is 192.168.10.32. The mask 255.255.255.224 is a /27, whose block size is 32, so networks fall on multiples of 32 (.0, .32, .64)."
+    },
+    {
+      "id": "q0004",
+      "module": 11,
+      "section": "11.1",
+      "type": "mcq",
+      "stem": "Which statement about the purpose of an IPv4 subnet mask is true?",
+      "options": [
+        "It separates the network portion from the host portion of an address",
+        "It assigns a unique host address to a device",
+        "It prevents all broadcast traffic",
+        "It changes the destination address of a packet"
+      ],
+      "answer": 0,
+      "explanation": "The mask is a 32-bit string of contiguous 1s (network) followed by 0s (host). ANDing the address with the mask yields the network address. The mask does not assign host addresses or stop broadcasts, it only defines the boundary between network and host bits."
+    },
+    {
+      "id": "q0005",
+      "module": 11,
+      "section": "11.2",
+      "type": "mcq",
+      "stem": "On the 192.168.1.0/24 network, which address is the directed broadcast and to every host in that subnet?",
+      "options": [
+        "192.168.1.255",
+        "255.255.255.255",
+        "192.168.1.0",
+        "224.0.0.1"
+      ],
+      "answer": 0,
+      "explanation": "A directed broadcast targets a specific subnet and has all host bits set to 1, so for 192.168.1.0/24 it is 192.168.1.255. 255.255.255.255 is the all-hosts (limited) broadcast only on the local link, 192.168.1.0 is the network address, and 224.0.0.1 is a multicast address."
+    },
+    {
+      "id": "q0006",
+      "module": 11,
+      "section": "11.2",
+      "type": "mcq",
+      "stem": "One host sends a packet to a group of hosts that have all joined the same multicast group. This delivery method is called what?",
+      "options": ["Unicast", "Multicast", "Broadcast", "Anycast"],
+      "answer": 1,
+      "explanation": "Multicast is a one-to-many delivery to a subscribed group (addresses in 224.0.0.0/4). Unicast is one-to-one, broadcast is one-to-all on a segment, and anycast delivers to only one (nearest) member of a set."
+    },
+    {
+      "id": "q0007",
+      "module": 11,
+      "section": "11.3",
+      "type": "mcq",
+      "stem": "Which address is NOT a private RFC 1918 address?",
+      "options": [
+        "10.1.2.3",
+        "172.16.0.1",
+        "192.168.1.1",
+        "172.32.0.1"
+      ],
+      "answer": 3,
+      "explanation": "RFC 1918 private ranges are 10.0.0.0/8, 172.16.0.0/12 (172.16.0.0 through 172.31.255.255), and 192.168.0.0/16. 172.32.0.1 is outside the 172.16.0.0/12 block, so it is a public address."
+    },
+    {
+      "id": "q0008",
+      "module": 11,
+      "section": "11.3",
+      "type": "mcq",
+      "stem": "Which IPv4 address range is reserved for link-local automatic configuration (used when a host cannot get an address from DHCP)?",
+      "options": [
+        "127.0.0.0/8",
+        "169.254.0.0/16",
+        "192.0.2.0/24",
+        "224.0.0.0/4"
+      ],
+      "answer": 1,
+      "explanation": "169.254.0.0/16 is the link-local (APIPA) range a host self-assigns when DHCP fails. 127.0.0.0/8 is loopback, 192.0.2.0/24 is TEST-NET for documentation, and 224.0.0.0/4 is multicast."
+    },
+    {
+      "id": "q0009",
+      "module": 11,
+      "section": "11.3",
+      "type": "mcq",
+      "stem": "In legacy classful addressing, 172.20.10.5 belongs to which class and what is its default subnet mask?",
+      "options": [
+        "Class A, 255.0.0.0",
+        "Class B, 255.255.0.0",
+        "Class C, 255.255.255.0",
+        "Class D, multicast"
+      ],
+      "answer": 1,
+      "explanation": "Class B covers 128-191 in the first octet, and its default mask is 255.255.0.0 (/16). Class A is 1-126 with /8, Class C is 192-223 with /24, and Class D (224-239) is multicast."
+    },
+    {
+      "id": "q0010",
+      "module": 11,
+      "section": "11.3",
+      "type": "mcq",
+      "stem": "Which IPv4 address range is reserved for loopback testing of the local TCP/IP stack?",
+      "options": [
+        "169.254.0.0/16",
+        "127.0.0.0/8",
+        "192.0.2.0/24",
+        "2001:db8::/32"
+      ],
+      "answer": 1,
+      "explanation": "127.0.0.0/8 is the loopback range; 127.0.0.1 is the common loopback address used to test the local stack. 169.254.0.0/16 is link-local, 192.0.2.0/24 is TEST-NET, and 2001:db8::/32 is the IPv6 documentation range."
+    },
+    {
+      "id": "q0011",
+      "module": 11,
+      "section": "11.3",
+      "type": "mcq",
+      "stem": "The TEST-NET range 192.0.2.0/24 is intended for what use?",
+      "options": [
+        "Documentation and examples in teaching materials",
+        "Private addresses inside an organization",
+        "Link-local autoconfiguration",
+        "IPv6-to-IPv4 translation"
+      ],
+      "answer": 0,
+      "explanation": "192.0.2.0/24 (TEST-NET-1) is reserved for use in documentation and examples so that published addresses are not real and reachable. Private ranges are RFC 1918, link-local is 169.254.0.0/16, and translation is handled by techniques like NAT64."
+    },
+    {
+      "id": "q0012",
+      "module": 11,
+      "section": "11.4",
+      "type": "mcq",
+      "stem": "Two PCs on different subnets cannot communicate directly with each other because of what?",
+      "options": [
+        "A router (default gateway) is required to forward between subnets",
+        "Their traffic is limited to a single broadcast domain that always stays local",
+        "Each subnet must contain only one MAC address",
+        "Broadcasts automatically cross to every subnet"
+      ],
+      "answer": 0,
+      "explanation": "Devices on the same subnet communicate at Layer 2; devices on different subnets must send frames to their default gateway, which routes them to the other subnet. Broadcasts and MAC frames do not cross subnets by themselves."
+    },
+    {
+      "id": "q0013",
+      "module": 11,
+      "section": "11.4",
+      "type": "mcq",
+      "stem": "Segmenting a large, flat network into smaller subnets primarily reduces what?",
+      "options": [
+        "Router CPU load from routing decisions",
+        "The size of the broadcast domains",
+        "The number of host addresses needed",
+        "The speed of the links"
+      ],
+      "answer": 1,
+      "explanation": "A subnet IS a broadcast domain, so creating more, smaller subnets shrinks each broadcast domain. Fewer hosts receive broadcasts, which keeps traffic and fragmentation down and improves performance."
+    },
+    {
+      "id": "q0014",
+      "module": 11,
+      "section": "11.5",
+      "type": "mcq",
+      "stem": "How many /28 subnets can be created from a single 192.168.1.0/24 network?",
+      "options": ["4", "16", "32", "64"],
+      "answer": 1,
+      "explanation": "The number of subnets is 2^(new prefix - original prefix) = 2^(28-24) = 16. Each /28 provides 14 usable hosts (2^4 - 2)."
+    },
+    {
+      "id": "q0015",
+      "module": 11,
+      "section": "11.5",
+      "type": "mcq",
+      "stem": "Using the magic-number method, what is the increment (magic number) between subnet addresses when subnetting 192.168.1.0/27?",
+      "options": ["32", "16", "64", "8"],
+      "answer": 0,
+      "explanation": "For a /27, 3 bits are borrowed in the last octet, leaving 5 host bits. The magic number is 2^(8-3) = 32. Networks fall on 192.168.1.0, .32, .64, .96, and so on."
+    },
+    {
+      "id": "q0016",
+      "module": 11,
+      "section": "11.5",
+      "type": "mcq",
+      "stem": "A host is configured with 192.168.1.101/27. What are its network and broadcast addresses?",
+      "options": [
+        "192.168.1.96 and 192.168.1.127",
+        "192.168.1.64 and 192.168.1.95",
+        "192.168.1.101 and 192.168.1.126",
+        "192.168.1.96 and 192.168.1.126"
+      ],
+      "answer": 0,
+      "explanation": "The /27 magic number is 32. 101 divided by 32 is 3.15, so the host is in the fourth block, starting at 192.168.1.96. The broadcast is the last address in the block: 96 + 31 = 127. Valid hosts are 97-126."
+    },
+    {
+      "id": "q0017",
+      "module": 11,
+      "section": "11.5",
+      "type": "mcq",
+      "stem": "Which of the following is a valid host address on the network 172.16.0.0/30?",
+      "options": [
+        "172.16.0.0",
+        "172.16.0.1",
+        "172.16.0.3",
+        "172.16.0.4"
+      ],
+      "answer": 1,
+      "explanation": "A /30 block has 4 addresses: 172.16.0.0 is the network, .1 and .2 are usable hosts, and .3 is the broadcast. .4 starts the next /30 network. /30 subnets are common for point-to-point serial links."
+    },
+    {
+      "id": "q0018",
+      "module": 11,
+      "section": "11.5",
+      "type": "mcq",
+      "stem": "What is the broadcast address of the subnet 192.168.1.64/26?",
+      "options": [
+        "192.168.1.126",
+        "192.168.1.127",
+        "192.168.1.63",
+        "192.168.1.128"
+      ],
+      "answer": 1,
+      "explanation": "A /26 has a magic number of 2^6 = 64, so the block is 192.168.1.64 through 192.168.1.127. The broadcast is the last address in the block, 192.168.1.127, and usable hosts are 65-126."
+    },
+    {
+      "id": "q0019",
+      "module": 11,
+      "section": "11.6",
+      "type": "mcq",
+      "stem": "How many /24 subnets exist within a /16 network?",
+      "options": ["16", "256", "1024", "65536"],
+      "answer": 1,
+      "explanation": "2^(24-16) = 2^8 = 256. A /16 (like 172.16.0.0/16) can be divided into 256 /24 subnets, from 172.16.0.0/24 up to 172.16.255.0/24."
+    },
+    {
+      "id": "q0020",
+      "module": 11,
+      "section": "11.6",
+      "type": "mcq",
+      "stem": "An organization owns 10.0.0.0/8 and divides it into /16 subnets. How many /16 subnets does it obtain?",
+      "options": ["256", "16", "65536", "128"],
+      "answer": 0,
+      "explanation": "2^(16-8) = 2^8 = 256. Subnetting across multiple octets works the same way: the borrowed bits (8 here) determine the count. Each /16 then contains 65,534 usable host addresses."
+    },
+    {
+      "id": "q0021",
+      "module": 11,
+      "section": "11.7",
+      "type": "mcq",
+      "stem": "A LAN needs at least 50 usable host addresses per subnet. What is the smallest prefix length that satisfies this?",
+      "options": ["/25", "/26", "/27", "/28"],
+      "answer": 1,
+      "explanation": "Usable hosts = 2^h - 2. /25 gives 126 (h=7), /26 gives 62 (h=6), /27 gives 30, and /28 gives 14. The smallest that gives 50 is /26 with 62 usable hosts."
+    },
+    {
+      "id": "q0022",
+      "module": 11,
+      "section": "11.7",
+      "type": "mcq",
+      "stem": "A site needs 1000 usable host addresses. What is the smallest matching prefix length?",
+      "options": ["/21", "/22", "/23", "/24"],
+      "answer": 1,
+      "explanation": "2^10 - 2 = 1022 usable hosts, which is a /22 (32-22 = 10 host bits). A /21 gives 2046 (overkill), while /23 gives 510 and /24 gives 254, both too small."
+    },
+    {
+      "id": "q0023",
+      "module": 11,
+      "section": "11.7",
+      "type": "mcq",
+      "stem": "A serial point-to-point link needs only two usable host addresses. Which prefix length is most appropriate?",
+      "options": ["/30", "/29", "/28", "/27"],
+      "answer": 0,
+      "explanation": "A /30 provides 2 usable hosts (2^2 - 2), which is exactly what a point-to-point link requires, wasting no addresses. Larger prefixes would waste addresses; a /31 could work in some implementations but the CCNA v7 curriculum uses /30 for serial links."
+    },
+    {
+      "id": "q0024",
+      "module": 11,
+      "section": "11.7",
+      "type": "mcq",
+      "stem": "You need 8 subnets, each supporting up to 20 hosts, from 192.168.1.0/24. Which prefix length should each subnet use?",
+      "options": ["/26", "/27", "/28", "/29"],
+      "answer": 1,
+      "explanation": "A /27 provides 30 usable hosts (enough for 20) and dividing a /24 into /27s gives exactly 2^(27-24) = 8 subnets. /28 gives only 14 hosts, and /26 gives only 4 subnets, so /27 satisfies both requirements."
+    },
+    {
+      "id": "q0025",
+      "module": 11,
+      "section": "11.8",
+      "type": "mcq",
+      "stem": "What does VLSM (variable-length subnet masking) allow that fixed-length subnet masking does not?",
+      "options": [
+        "Using different subnet masks for different subnets within the same major network",
+        "Using the same mask for every subnet",
+        "Creating only /24 subnets",
+        "Assigning a mask to a single host only"
+      ],
+      "answer": 0,
+      "explanation": "VLSM lets you tailor the mask to each subnet's size (a /26 for a 50-host LAN, a /30 for a serial link) within the same network. Fixed-length subnetting (FLSM) forces one mask on all subnets and wastes addresses."
+    },
+    {
+      "id": "q0026",
+      "module": 11,
+      "section": "11.8",
+      "type": "mcq",
+      "stem": "You are using VLSM on 192.168.1.0/24. LAN A needs 50 hosts and is assigned 192.168.1.0/26 first. LAN B needs 25 hosts. Which network should LAN B be assigned next?",
+      "options": [
+        "192.168.1.64/27",
+        "192.168.1.64/26",
+        "192.168.1.128/25",
+        "192.168.1.64/28"
+      ],
+      "answer": 0,
+      "explanation": "LAN A's /26 uses 192.168.1.0 through .63. The next free block starts at .64. LAN B needs 25 hosts, so a /27 (30 hosts) fits, giving 192.168.1.64/27 which spans .64 through .95. A /26 would be oversized and a /28 too small."
+    },
+    {
+      "id": "q0027",
+      "module": 11,
+      "section": "11.8",
+      "type": "mcq",
+      "stem": "Continuing the VLSM plan: LAN A is 192.168.1.0/26 and LAN B is 192.168.1.64/27. Which network should be assigned to the first /30 serial WAN link?",
+      "options": [
+        "192.168.1.96/30",
+        "192.168.1.128/30",
+        "192.168.1.64/30",
+        "192.168.1.112/30"
+      ],
+      "answer": 0,
+      "explanation": "LAN B's /27 uses .64 through .95, so the next free address is .96. A /30 block starting at .96 is 192.168.1.96/30 (uses .96-.99). This shows VLSM's address efficiency: the /30 is carved from the remaining space, leaving room for more subnets."
+    },
+    {
+      "id": "q0028",
+      "module": 11,
+      "section": "11.9",
+      "type": "mcq",
+      "stem": "Which is an advantage of a structured, left-to-right hierarchical address plan (e.g. assigning subnets in contiguous blocks by location and role)?",
+      "options": [
+        "It makes route summarization and troubleshooting easier",
+        "It guarantees protection from all attacks",
+        "It removes the need for DHCP",
+        "It increases link bandwidth"
+      ],
+      "answer": 0,
+      "explanation": "Contiguous, planned blocks let routers summarize many subnets into one route and make it easy to identify where an address belongs. Structuring does not by itself secure the network, replace DHCP, or add bandwidth."
+    },
+    {
+      "id": "q0029",
+      "module": 12,
+      "section": "12.1",
+      "type": "mcq",
+      "stem": "A host is configured to run both IPv4 and IPv6 stacks at the same time. Which coexistence technique is this?",
+      "options": ["Dual stack", "Tunneling", "Translation", "Anycast"],
+      "answer": 0,
+      "explanation": "Dual stack runs IPv4 and IPv6 concurrently on the same interfaces, so the device can communicate with both IPv4-only and IPv6-only hosts. Tunneling carries one protocol inside the other; translation converts between address types."
+    },
+    {
+      "id": "q0030",
+      "module": 12,
+      "section": "12.1",
+      "type": "mcq",
+      "stem": "An IPv6 packet is encapsulated inside an IPv4 packet so it can cross an IPv4-only portion of the network. This is called what?",
+      "options": ["Tunneling", "Dual stack", "Translation", "Multicasting"],
+      "answer": 0,
+      "explanation": "A tunnel treats the IPv6 packet as the payload of an IPv4 packet, letting IPv6 traffic travel over an IPv4-only path. Dual stack runs both protocols natively, and translation (such as NAT64) rewrites addresses between the families."
+    },
+    {
+      "id": "q0031",
+      "module": 12,
+      "section": "12.1",
+      "type": "mcq",
+      "stem": "NAT64 is a translation technique that does what?",
+      "options": [
+        "Converts between IPv6 and IPv4 addresses so the two families can reach each other",
+        "Converts between private and public IPv4 addresses",
+        "Converts MAC addresses into IPv6 interface IDs",
+        "Converts hostnames into IP addresses"
+      ],
+      "answer": 0,
+      "explanation": "NAT64 lets IPv6-only hosts communicate with IPv4-only servers by translating between IPv6 and IPv4 addresses. Private-to-public IPv4 translation is NAT (or PAT), MAC-to-interface-ID is EUI-64, and name resolution is DNS."
+    },
+    {
+      "id": "q0032",
+      "module": 12,
+      "section": "12.2",
+      "type": "mcq",
+      "stem": "Using IPv6 abbreviation rules, how is 2001:0DB8:0000:0000:0000:0000:0000:0001 written in its shortest valid form?",
+      "options": [
+        "2001:DB8::1",
+        "2001:DB8:0:0:0:0:0:1",
+        "2001:DB8::1:1",
+        "2001:DB8:::1"
+      ],
+      "answer": 0,
+      "explanation": "Drop leading zeros within each hextet (0DB8 becomes DB8) and replace the longest single run of zero hextets with :: (here the six zero hextets). The result is 2001:DB8::1. Option 2 is valid but not the shortest, and options 3 and 4 are malformed."
+    },
+    {
+      "id": "q0033",
+      "module": 12,
+      "section": "12.2",
+      "type": "mcq",
+      "stem": "What is the full, unabbreviated form of the IPv6 address ::1?",
+      "options": [
+        "0000:0000:0000:0000:0000:0000:0000:0001",
+        "0001:0000:0000:0000:0000:0000:0000:0000",
+        "127.0.0.1",
+        "1:1:1:1:1:1:1:1"
+      ],
+      "answer": 0,
+      "explanation": "The double colon stands for six hextets of zeros, so ::1 expands to seven zero hextets followed by 0001. This is the IPv6 loopback address, not the IPv4 loopback 127.0.0.1."
+    },
+    {
+      "id": "q0034",
+      "module": 12,
+      "section": "12.2",
+      "type": "mcq",
+      "stem": "Which statement correctly states the rule for using the double colon in IPv6?",
+      "options": [
+        "It may represent one run of zero hextets and may be used only once in an address",
+        "It may be used multiple times in one address",
+        "It represents exactly one zero hextet",
+        "It is allowed only at the end of an address"
+      ],
+      "answer": 0,
+      "explanation": "The double colon can replace a single contiguous run of one or more zero hextets, and only one double colon may appear per address. Using it twice would make the address ambiguous because the number of zero hextets per run is unknown."
+    },
+    {
+      "id": "q0035",
+      "module": 12,
+      "section": "12.2",
+      "type": "mcq",
+      "stem": "Which of the following is a valid IPv6 address?",
+      "options": [
+        "2001:DB8::1234:5678",
+        "2001:DB8::1::2",
+        "2001:DB8:1234",
+        "FE80::G1"
+      ],
+      "answer": 0,
+      "explanation": "2001:DB8::1234:5678 uses the single double colon correctly. Option 2 uses two double colons (invalid), option 3 has too few hextets, and option 4 contains the invalid hex digit G."
+    },
+    {
+      "id": "q0036",
+      "module": 12,
+      "section": "12.3",
+      "type": "mcq",
+      "stem": "Which prefix identifies globally unique IPv6 unicast addresses (GUA)?",
+      "options": ["2000::/3", "fe80::/10", "fc00::/7", "ff00::/8"],
+      "answer": 0,
+      "explanation": "Global unicast addresses (GUA) begin at 2000:: and use the range 2000::/3. fe80::/10 is link-local, fc00::/7 is unique local (ULA), and ff00::/8 is multicast."
+    },
+    {
+      "id": "q0037",
+      "module": 12,
+      "section": "12.3",
+      "type": "mcq",
+      "stem": "Link-local IPv6 addresses begin with which prefix?",
+      "options": ["fe80::/10", "fc00::/7", "2000::/3", "ff02::/8"],
+      "answer": 0,
+      "explanation": "Link-local addresses always begin with fe80::/10. They are automatically generated and only work on the local segment; routers do not forward them to other networks."
+    },
+    {
+      "id": "q0038",
+      "module": 12,
+      "section": "12.3",
+      "type": "mcq",
+      "stem": "Unique local IPv6 addresses (ULA) begin with which prefix?",
+      "options": ["fc00::/7", "fe80::/10", "2000::/3", "ff00::/8"],
+      "answer": 0,
+      "explanation": "ULA addresses use fc00::/7. They are the IPv6 equivalent of private IPv4 addresses: routable within a site but not globally unique and not routed on the public Internet."
+    },
+    {
+      "id": "q0039",
+      "module": 12,
+      "section": "12.3",
+      "type": "mcq",
+      "stem": "The IPv6 address ::1 is the what?",
+      "options": ["Loopback address", "Unspecified address", "Multicast address", "Anycast address"],
+      "answer": 0,
+      "explanation": "::1 is the IPv6 loopback address, used to test the local IPv6 stack, just as 127.0.0.1 is used in IPv4. The unspecified address is :: (all zeros), and multicast begins with ff00::/8."
+    },
+    {
+      "id": "q0040",
+      "module": 12,
+      "section": "12.3",
+      "type": "mcq",
+      "stem": "A host that has not yet obtained an IPv6 address uses which address as its source?",
+      "options": [
+        ":: (the unspecified address)",
+        "::1 (loopback)",
+        "A global unicast address",
+        "ff00::/8"
+      ],
+      "answer": 0,
+      "explanation": "The all-zeros address :: is the unspecified address, used as the source when a device does not yet have an address (for example, while sending a Router Solicitation). It is never a valid destination."
+    },
+    {
+      "id": "q0041",
+      "module": 12,
+      "section": "12.3",
+      "type": "mcq",
+      "stem": "Which statement about IPv6 anycast addresses is true?",
+      "options": [
+        "They use the same format as unicast addresses and deliver packets to the nearest member of a group",
+        "They always deliver to every member of a group",
+        "They are a special form of multicast",
+        "They are limited to the loopback interface"
+      ],
+      "answer": 0,
+      "explanation": "An anycast address is assigned to multiple devices but uses the same format as a unicast address. A packet to an anycast address is delivered to only one member, typically the nearest. This distinguishes anycast from multicast, which reaches all group members."
+    },
+    {
+      "id": "q0042",
+      "module": 12,
+      "section": "12.4",
+      "type": "mcq",
+      "stem": "Which command statically assigns the global unicast address 2001:DB8:ACAD:1::1/64 to a Cisco router interface?",
+      "options": [
+        "ipv6 address 2001:db8:acad:1::1/64",
+        "ip address 2001:db8:acad:1::1/64",
+        "ipv6 enable",
+        "ipv6 address 2001:db8:acad:1::1"
+      ],
+      "answer": 0,
+      "explanation": "The interface configuration command is ipv6 address <address>/<prefix-length>. The ip address command is only for IPv4, ipv6 enable only creates a link-local address, and omitting the /64 prefix length is invalid."
+    },
+    {
+      "id": "q0043",
+      "module": 12,
+      "section": "12.4",
+      "type": "cmd",
+      "stem": "On a Windows host, what netsh command assigns the global unicast address 2001:DB8:ACAD:1::1/64 to the interface named Ethernet?",
+      "answer": "netsh interface ipv6 add address \"Ethernet\" 2001:db8:acad:1::1/64",
+      "accepted": [
+        "netsh interface ipv6 add address \"Ethernet\" 2001:db8:acad:1::1/64",
+        "netsh interface ipv6 add address \"Ethernet\" 2001:db8:acad:1::1/64"
+      ],
+      "explanation": "netsh interface ipv6 add address <interface> <address>/<prefix-length> adds a static IPv6 address on Windows. The interface name must match exactly as shown in ipconfig (here, Ethernet)."
+    },
+    {
+      "id": "q0044",
+      "module": 12,
+      "section": "12.5",
+      "type": "mcq",
+      "stem": "In SLAAC, a host discovers its default gateway information from which source?",
+      "options": [
+        "The Router Advertisement (RA) message sent by the local router",
+        "A DHCPv6 server on a remote network",
+        "A DNS query",
+        "An ARP reply"
+      ],
+      "answer": 0,
+      "explanation": "SLAAC works through Router Solicitation (RS) from the host and Router Advertisement (RA) from the router. The RA carries the prefix and typically the source link-local address, which the host uses as its default gateway. DHCPv6 and DNS do not provide the gateway in SLAAC."
+    },
+    {
+      "id": "q0045",
+      "module": 12,
+      "section": "12.5",
+      "type": "mcq",
+      "stem": "If a router's Router Advertisement sets the Managed (M) flag, what should hosts do?",
+      "options": [
+        "Obtain their IPv6 address from a stateful DHCPv6 server",
+        "Use only SLAAC from the RA",
+        "Require static configuration",
+        "Use only random interface IDs"
+      ],
+      "answer": 0,
+      "explanation": "The M flag tells hosts to use stateful DHCPv6, meaning a DHCPv6 server assigns the IPv6 address (and other parameters). When M is set, SLAAC is not used for the address. The O flag, by contrast, signals stateless DHCPv6 for additional information only."
+    },
+    {
+      "id": "q0046",
+      "module": 12,
+      "section": "12.5",
+      "type": "mcq",
+      "stem": "If a Router Advertisement sets only the Other (O) flag, what do hosts do?",
+      "options": [
+        "Use SLAAC for the address but get other configuration (such as DNS) from a stateless DHCPv6 server",
+        "Get their address and all parameters from DHCPv6",
+        "Ignore the advertisement",
+        "Completely stop using IPv6"
+      ],
+      "answer": 0,
+      "explanation": "With only the O flag set, the host uses SLAAC to form its own IPv6 address and sends DHCPv6 requests for other configuration like DNS servers. This is the SLAAC plus stateless DHCPv6 model. The M flag would instead trigger stateful DHCPv6 for the address too."
+    },
+    {
+      "id": "q0047",
+      "module": 12,
+      "section": "12.5",
+      "type": "mcq",
+      "stem": "How does stateless DHCPv6 differ from stateful DHCPv6?",
+      "options": [
+        "Stateless DHCPv6 does not assign the IPv6 address; it only provides additional parameters like DNS",
+        "Stateless DHCPv6 assigns both the address and parameters",
+        "Stateless DHCPv6 only works for IPv4",
+        "Stateful DHCPv6 requires no DHCP server"
+      ],
+      "answer": 0,
+      "explanation": "In stateless DHCPv6, the host forms its own address via SLAAC and uses DHCPv6 only for other information such as DNS servers. In stateful DHCPv6, the server assigns the address itself. The M flag triggers stateful; the O flag triggers stateless."
+    },
+    {
+      "id": "q0048",
+      "module": 12,
+      "section": "12.5",
+      "type": "mcq",
+      "stem": "A host has MAC address 00:1C:AB:C4:83:5A. Using EUI-64, what interface ID does it derive?",
+      "options": [
+        "021C:ABFF:FEC4:835A",
+        "001C:ABFF:FEC4:835A",
+        "00FF:FE1C:ABC4:835A",
+        "021C:ABFF:EC4:835A"
+      ],
+      "answer": 0,
+      "explanation": "EUI-64 splits the MAC in half, inserts FFFE in the middle, and flips the U/L bit (the second-least-significant bit of the first octet). 00 becomes 02, giving 02:1C:AB:FF:FE:C4:83:5A, written as hextets 021C:ABFF:FEC4:835A. Option 2 misses the U/L flip, and the others are malformed."
+    },
+    {
+      "id": "q0049",
+      "module": 12,
+      "section": "12.6",
+      "type": "mcq",
+      "stem": "When is an IPv6 link-local address generated on an interface?",
+      "options": [
+        "Automatically when IPv6 is enabled on the interface",
+        "Only after you configure the ipv6 unicast-routing command",
+        "Only when DHCPv6 runs",
+        "Only when DNS is configured"
+      ],
+      "answer": 0,
+      "explanation": "Every IPv6-enabled interface automatically creates a link-local address (usually via EUI-64 or a randomly generated interface ID). The ipv6 unicast-routing command enables IPv6 routing on the router; it is not needed to create a link-local address."
+    },
+    {
+      "id": "q0050",
+      "module": 12,
+      "section": "12.6",
+      "type": "cmd",
+      "stem": "Which Cisco IOS command displays a summary of each interface's IPv6 address, status, and protocol state?",
+      "answer": "show ipv6 interface brief",
+      "accepted": ["show ipv6 interface brief", "show ipv6 interface brief"],
+      "explanation": "show ipv6 interface brief lists each interface with its IPv6 address, status, and protocol, similar to how show ip interface brief works for IPv4."
+    },
+    {
+      "id": "q0051",
+      "module": 12,
+      "section": "12.7",
+      "type": "mcq",
+      "stem": "Which well-known multicast address is used to reach all IPv6 nodes on the local link?",
+      "options": ["ff02::1", "ff02::2", "ff02::5", "ff02::9"],
+      "answer": 0,
+      "explanation": "ff02::1 is the all-nodes multicast group for the local link; all IPv6 hosts must join it. ff02::2 is all-routers, ff02::5 is OSPFv3, and ff02::9 is RIPng."
+    },
+    {
+      "id": "q0052",
+      "module": 12,
+      "section": "12.7",
+      "type": "mcq",
+      "stem": "Which multicast address is used to reach all IPv6 routers on the local link?",
+      "options": ["ff02::2", "ff02::1", "ff02::5", "ff02::a"],
+      "answer": 0,
+      "explanation": "ff02::2 is the all-routers multicast group. ff02::1 is all-nodes, ff02::5 is OSPFv3, and ff02::a is EIGRP for IPv6."
+    },
+    {
+      "id": "q0053",
+      "module": 12,
+      "section": "12.7",
+      "type": "mcq",
+      "stem": "The well-known multicast address ff02::5 is used by which protocol?",
+      "options": ["OSPFv3 routers", "RIPng routers", "EIGRP routers", "DHCPv6 servers"],
+      "answer": 0,
+      "explanation": "ff02::5 is the group for OSPFv3 routers (the IPv6 version of OSPF). RIPng uses ff02::9 and EIGRP for IPv6 uses ff02::a; DHCPv6 has its own server/relay multicast addresses."
+    },
+    {
+      "id": "q0054",
+      "module": 12,
+      "section": "12.7",
+      "type": "mcq",
+      "stem": "Solicited-node multicast addresses are built on which prefix?",
+      "options": ["ff02::1:ff00:0/104", "ff00::/8", "fe80::/10", "ff02::1"],
+      "answer": 0,
+      "explanation": "Solicited-node multicast addresses use the prefix ff02::1:ff00:0/104, and the last 24 bits are copied from the unicast address, forming an address like ff02::1:ffxx:xxxx. They let hosts quickly resolve neighbors with Neighbor Discovery."
+    },
+    {
+      "id": "q0055",
+      "module": 12,
+      "section": "12.7",
+      "type": "mcq",
+      "stem": "For the IPv6 address 2001:DB8::1234:ABCD, what is its solicited-node multicast address?",
+      "options": [
+        "ff02::1:ff34:abcd",
+        "ff02::1:ff12:34ab",
+        "ff02::2:ff34:abcd",
+        "ff02::1:ff00:1234"
+      ],
+      "answer": 0,
+      "explanation": "Take the last 24 bits of the unicast address (34:abcd) and append them to ff02::1:ff00:0/104, giving ff02::1:ff34:abcd. The first 104 bits are fixed; only the last 24 bits come from the host's address."
+    },
+    {
+      "id": "q0056",
+      "module": 12,
+      "section": "12.8",
+      "type": "mcq",
+      "stem": "How many /64 subnets can be created from a single /48 IPv6 prefix?",
+      "options": ["65536", "256", "4096", "16"],
+      "answer": 0,
+      "explanation": "Going from /48 to /64 borrows 16 bits for the Subnet ID, so the number of subnets is 2^16 = 65,536. Each /64 subnet then contains 2^64 addresses."
+    },
+    {
+      "id": "q0057",
+      "module": 12,
+      "section": "12.8",
+      "type": "mcq",
+      "stem": "How many individual IPv6 addresses does a single /64 subnet contain?",
+      "options": ["2^64", "2^32", "2^128", "2^16"],
+      "answer": 0,
+      "explanation": "A /64 leaves 64 bits for the interface ID, so it contains 2^64 addresses. This enormous space is why IPv6 subnetting is rarely about conserving host addresses, unlike IPv4."
+    },
+    {
+      "id": "q0058",
+      "module": 17,
+      "section": "17.1",
+      "type": "mcq",
+      "stem": "Adding a redundant switch and a second uplink to a network primarily improves what?",
+      "options": [
+        "Availability and fault tolerance",
+        "Bandwidth without any added cost",
+        "Address plan simplicity",
+        "Security of the firewall only"
+      ],
+      "answer": 0,
+      "explanation": "Redundancy provides alternate paths or duplicate devices so a single failure does not take the network down, improving availability. It does not by itself serve, simplify addressing, or secure the network."
+    },
+    {
+      "id": "q0059",
+      "module": 17,
+      "section": "17.1",
+      "type": "mcq",
+      "stem": "Why are large networks best built with a hierarchical design?",
+      "options": [
+        "It scales predictably with modular layers (access, distribution, core) and is easier to manage",
+        "It requires fewer physical cables",
+        "It eliminates the need for routing entirely",
+        "It prevents all packet collisions"
+      ],
+      "answer": 0,
+      "explanation": "A hierarchical design organizes the network into clear layers with defined roles. New devices and subnets are added in a predictable way, and traffic patterns are easier to manage and troubleshoot. Cabling, routing, and collisions are separate concerns."
+    },
+    {
+      "id": "q0060",
+      "module": 17,
+      "section": "17.2",
+      "type": "mcq",
+      "stem": "Which application typically uses UDP for its transport?",
+      "options": [
+        "TFTP file transfer",
+        "SSH remote session",
+        "FTP data transfer",
+        "HTTPS web browsing"
+      ],
+      "answer": 0,
+      "explanation": "TFTP uses UDP (port 69) because it is simple and lightweight. SSH, FTP, and HTTPS all require reliable, connection-oriented delivery and use TCP."
+    },
+    {
+      "id": "q0061",
+      "module": 17,
+      "section": "17.2",
+      "type": "mcq",
+      "stem": "Which well-known destination port does DNS use for queries?",
+      "options": ["53", "80", "25", "443"],
+      "answer": 0,
+      "explanation": "DNS uses port 53, normally over UDP (and TCP for zone transfers or large responses). Port 80 is HTTP, 25 is SMTP, and 443 is HTTPS."
+    },
+    {
+      "id": "q0062",
+      "module": 17,
+      "section": "17.2",
+      "type": "mcq",
+      "stem": "Secure web browsing over HTTPS uses which well-known destination port?",
+      "options": ["443", "80", "8080", "22"],
+      "answer": 0,
+      "explanation": "HTTPS uses TCP port 443. Plain HTTP uses port 80, 8080 is a common alternate HTTP port, and port 22 is SSH."
+    },
+    {
+      "id": "q0063",
+      "module": 17,
+      "section": "17.2",
+      "type": "mcq",
+      "stem": "VoIP audio is carried by RTP, which runs over UDP. Why is UDP preferred over TCP for real-time voice?",
+      "options": [
+        "UDP has low overhead and low delay, and a small amount of packet loss is tolerable for voice",
+        "UDP guarantees delivery and ordering of every packet",
+        "UDP is encrypted by default",
+        "UDP provides reliable retransmission of lost voice"
+      ],
+      "answer": 0,
+      "explanation": "Voice is delay-sensitive and can tolerate occasional lost packets. UDP avoids TCP's connection setup and retransmission, keeping delay low; retransmitting a late voice packet is useless. TCP's reliability would add unacceptable jitter for live voice."
+    },
+    {
+      "id": "q0064",
+      "module": 17,
+      "section": "17.2",
+      "type": "mcq",
+      "stem": "Why is QoS (Quality of Service) needed on a network that carries voice and video alongside data?",
+      "options": [
+        "Real-time traffic is delay-sensitive, so QoS classifies and prioritizes it in queues",
+        "Voice requires more IP addresses",
+        "Video needs IPv6 to work",
+        "QoS replaces the need for TCP"
+      ],
+      "answer": 0,
+      "explanation": "Voice and video are sensitive to delay and jitter, so QoS marks packets and gives them priority in router/switch queues, protecting them from congestion caused by bulk data. QoS does not assign addresses or replace the need for transport protocols."
+    },
+    {
+      "id": "q0065",
+      "module": 17,
+      "section": "17.3",
+      "type": "mcq",
+      "stem": "Wireshark is primarily used for what?",
+      "options": [
+        "Capturing and analyzing the packets/frames on a network",
+        "Generating random passwords",
+        "Routing traffic between networks",
+        "Automatically configuring switches"
+      ],
+      "answer": 0,
+      "explanation": "Wireshark is a protocol analyzer that captures frames and decodes protocols so you can inspect headers, payloads, and flows. It does not route traffic or configure devices; it observes and analyzes."
+    },
+    {
+      "id": "q0066",
+      "module": 17,
+      "section": "17.3",
+      "type": "mcq",
+      "stem": "Which is a best practice for scaling a campus network?",
+      "options": [
+        "Use a layered design with access, distribution, and core tiers",
+        "Place every device in one large broadcast domain",
+        "Avoid all redundant links and devices",
+        "Use only flat Layer 2 switching"
+      ],
+      "answer": 0,
+      "explanation": "A layered design centralizes functions: access connects end devices, distribution applies policies and aggregates, and core provides high-speed transport. This scales predictably. A single broadcast domain and flat switching do not scale well."
+    },
+    {
+      "id": "q0067",
+      "module": 17,
+      "section": "17.4",
+      "type": "mcq",
+      "stem": "The ping command verifies what?",
+      "options": [
+        "Layer 3 reachability of a destination",
+        "Layer 2 connectivity only",
+        "DNS record accuracy only",
+        "The path's MTU tuning only"
+      ],
+      "answer": 0,
+      "explanation": "Ping sends ICMP Echo Request packets and waits for Echo Reply, testing IP-level reachability (Layer 3) between source and destination. A successful ping proves ICMP/IP connectivity, not that an application is working."
+    },
+    {
+      "id": "q0068",
+      "module": 17,
+      "section": "17.4",
+      "type": "mcq",
+      "stem": "How does traceroute differ from ping?",
+      "options": [
+        "It shows the path, listing each router (hop) to the destination",
+        "It can only test the local host",
+        "It tests application-layer services",
+        "It forces the use of IPv6 only"
+      ],
+      "answer": 0,
+      "explanation": "Traceroute sends packets with increasing TTL values so each router in the path replies with an ICMP time-exceeded message, revealing every hop. Ping only confirms end-to-end reachability; it does not reveal the intermediate path."
+    },
+    {
+      "id": "q0069",
+      "module": 17,
+      "section": "17.4",
+      "type": "mcq",
+      "stem": "What additional control does an extended ping on a Cisco router give you over a standard ping?",
+      "options": [
+        "It lets you choose the source address/interface, packet count, size, and protocol",
+        "It only pings localhost",
+        "It only tests the default gateway",
+        "It only resolves DNS names"
+      ],
+      "answer": 0,
+      "explanation": "Extended ping prompts for parameters such as source address, repeat count, packet size, and protocol, which is useful for testing specific paths or particular interfaces. A standard ping uses defaults and a single source."
+    },
+    {
+      "id": "q0070",
+      "module": 17,
+      "section": "17.4",
+      "type": "mcq",
+      "stem": "Creating and using a network baseline helps an administrator do what?",
+      "options": [
+        "Compare current performance against normal, historical behavior to spot problems",
+        "Replace password security measures",
+        "Increase wireless signal power",
+        "Automate configuration backups"
+      ],
+      "answer": 0,
+      "explanation": "A baseline records normal traffic and performance metrics over time. When something changes, you compare current values to the baseline to detect anomalies and troubleshoot. Baselines are about measurement and comparison, not security, signals, or backup automation."
+    },
+    {
+      "id": "q0071",
+      "module": 17,
+      "section": "17.5",
+      "type": "cmd",
+      "stem": "On a Windows host, which single command shows the full IP configuration, including the MAC address, DNS servers, default gateway, and DHCP lease details?",
+      "answer": "ipconfig /all",
+      "accepted": ["ipconfig /all", "ipconfig /all"],
+      "explanation": "ipconfig /all displays detailed IPv4 and IPv6 configuration, including MAC address, DHCP status, lease times, DNS servers, and gateway. Plain ipconfig shows only a summary."
+    },
+    {
+      "id": "q0072",
+      "module": 17,
+      "section": "17.5",
+      "type": "cmd",
+      "stem": "On Linux, which command displays the IP addresses of all network interfaces?",
+      "answer": "ip addr",
+      "accepted": ["ip addr", "ip address", "ifconfig"],
+      "explanation": "ip addr (or ip address) lists each interface and its configured addresses. ifconfig is the older utility that serves a similar purpose but is deprecated on modern systems."
+    },
+    {
+      "id": "q0073",
+      "module": 17,
+      "section": "17.5",
+      "type": "cmd",
+      "stem": "Which command displays the local ARP cache, which maps IPv4 addresses to MAC addresses?",
+      "answer": "arp -a",
+      "accepted": ["arp -a", "arp -a"],
+      "explanation": "arp -a lists all entries in the local ARP table, showing the mapping of Layer 3 addresses to Layer 2 MAC addresses. It is useful for verifying which neighbor a host resolved."
+    },
+    {
+      "id": "q0074",
+      "module": 17,
+      "section": "17.5",
+      "type": "cmd",
+      "stem": "On a Cisco switch, which command lists directly connected neighbor devices learned through CDP (Cisco Discovery Protocol)?",
+      "answer": "show cdp neighbors",
+      "accepted": ["show cdp neighbors", "show cdp neighbors"],
+      "explanation": "show cdp neighbors lists each directly connected Cisco device — its device ID, local interface, platform, and capabilities — a fast way to map what is attached to a switchport."
+    },
+    {
+      "id": "q0075",
+      "module": 17,
+      "section": "17.5",
+      "type": "cmd",
+      "stem": "Which command shows a one-line summary of the status, protocol, and IPv4 address of every interface on a Cisco device?",
+      "answer": "show ip interface brief",
+      "accepted": ["show ip interface brief", "show ip interface brief"],
+      "explanation": "show ip interface brief lists each interface with its IP address, status, and protocol state, giving a fast overview of which interfaces are up and addressed."
+    },
+    {
+      "id": "q0076",
+      "module": 17,
+      "section": "17.5",
+      "type": "cmd",
+      "stem": "Which command shows a summary of the IPv6 address, status, and protocol of every interface on a Cisco device?",
+      "answer": "show ipv6 interface brief",
+      "accepted": ["show ipv6 interface brief", "show ipv6 interface brief"],
+      "explanation": "show ipv6 interface brief is the IPv6 counterpart to show ip interface brief, summarizing each interface's IPv6 address and operational state."
+    },
+    {
+      "id": "q0077",
+      "module": 17,
+      "section": "17.5",
+      "type": "mcq",
+      "stem": "Which command displays the Cisco IOS software version, bootstrap version, and system uptime?",
+      "options": [
+        "show version",
+        "show running-config",
+        "show interfaces",
+        "show clock"
+      ],
+      "answer": 0,
+      "explanation": "show version reports the IOS version, uptime, hardware platform, and system image. show running-config shows the active configuration, show interfaces shows port statistics, and show clock shows the current time."
+    },
+    {
+      "id": "q0078",
+      "module": 17,
+      "section": "17.6",
+      "type": "mcq",
+      "stem": "The divide-and-conquer troubleshooting method works by doing what?",
+      "options": [
+        "Starting at the most likely cause or middle of the OSI model and narrowing the search",
+        "Always starting at the physical layer",
+        "Replacing hardware before checking anything",
+        "Checking only software components"
+      ],
+      "answer": 0,
+      "explanation": "Divide-and-conquer picks the most probable layer (often the middle, like network layer) and tests in both directions, narrowing the fault quickly. It does not force a fixed start point like top-down or bottom-up."
+    },
+    {
+      "id": "q0079",
+      "module": 17,
+      "section": "17.6",
+      "type": "mcq",
+      "stem": "Bottom-up troubleshooting begins at which layer?",
+      "options": [
+        "The physical layer",
+        "The application layer",
+        "The network layer",
+        "The transport layer"
+      ],
+      "answer": 0,
+      "explanation": "Bottom-up starts at the physical layer (cables, links, interfaces) and works upward. It is thorough but can be slow for problems that are actually in higher layers. Top-down starts at the application layer and works downward."
+    },
+    {
+      "id": "q0080",
+      "module": 17,
+      "section": "17.6",
+      "type": "mcq",
+      "stem": "To view debug output from a Cisco device in the current terminal session, you must first issue which command?",
+      "options": [
+        "terminal monitor",
+        "no debug all",
+        "show debug",
+        "logging console on"
+      ],
+      "answer": 0,
+      "explanation": "terminal monitor redirects debug (and syslog) output to the current terminal session. Debugging must be enabled with a debug command and then stopped with undebug all; logging console affects console logging, not the current VTY session."
+    },
+    {
+      "id": "q0081",
+      "module": 17,
+      "section": "17.7",
+      "type": "mcq",
+      "stem": "A duplex mismatch (one side full-duplex, the other half-duplex) typically causes what symptom?",
+      "options": [
+        "A high error rate and very slow throughput on that link",
+        "Total loss of power to the switch",
+        "DNS resolution failures",
+        "A full loss of the IP address"
+      ],
+      "answer": 0,
+      "explanation": "The half-duplex side does not detect collisions caused by the full-duplex side, leading to late collisions, CRC errors, and retransmissions, which cripple throughput. Duplex mismatch is a classic Layer 1/2 fault, not a DNS or addressing problem."
+    },
+    {
+      "id": "q0082",
+      "module": 17,
+      "section": "17.7",
+      "type": "mcq",
+      "stem": "PCs on the same LAN can communicate with each other, but none can reach the Internet or other subnets. What is the most likely cause?",
+      "options": [
+        "A wrong or missing default gateway",
+        "A duplicate MAC address",
+        "Incorrect IP addressing on the LAN",
+        "A duplex mismatch on a PC's switch port"
+      ],
+      "answer": 0,
+      "explanation": "Local communication works at Layer 2, so the LAN itself is fine. Reaching other subnets requires forwarding to a default gateway that the PCs are not correctly using, so a missing or wrong gateway explains exactly this symptom. Duplicate MACs or a duplex mismatch would also disrupt local traffic."
+    },
+    {
+      "id": "q0083",
+      "module": 17,
+      "section": "17.7",
+      "type": "mcq",
+      "stem": "A host can ping a server by IP address, but cannot ping it by hostname. What is the most likely cause?",
+      "options": [
+        "A DNS resolution problem",
+        "The default gateway is down",
+        "A duplex mismatch",
+        "A faulty cable between the host and switch"
+      ],
+      "answer": 0,
+      "explanation": "Reaching the server by IP proves routing and connectivity work. Failing by name means the host cannot resolve the name to an address, so DNS is the culprit. A down gateway, duplex mismatch, or bad cable would break IP pinging too."
+    },
+    {
+      "id": "q0084",
+      "module": 17,
+      "section": "17.7",
+      "type": "mcq",
+      "stem": "A Windows host reports the error 'Duplicate IP address detected'. What does this mean?",
+      "options": [
+        "Another device on the network is already using the same IPv4 address",
+        "The NIC hardware has failed",
+        "The default gateway is misconfigured",
+        "The interface has no link-local address"
+      ],
+      "answer": 0,
+      "explanation": "The error means two devices share the same IPv4 address, which causes intermittent connectivity for both. It is usually caused by a static address conflicting with a DHCP lease. The default gateway only a bad NIC would produce different symptoms."
+    }
+  ]
+}

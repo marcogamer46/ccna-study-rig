@@ -1,0 +1,432 @@
+{
+  "modules": [
+    {
+      "id": 11,
+      "title": "IPv4 Addressing",
+      "sections": [
+        {
+          "id": "11.1",
+          "title": "Address Structure",
+          "summary": "An IPv4 address is a 32-bit value split into a network portion and a host portion by the subnet mask. The logical AND of the address and mask reveals the network address, while the prefix length states how many leading bits make up the network part.",
+          "points": [
+            "IPv4 addresses are 32 bits long, written in dotted decimal as four octets (8-bit groups).",
+            "The subnet mask identifies which bits belong to the network portion and which to the host portion.",
+            "A 255 in the mask means the corresponding address octet is network; a 0 means it is host.",
+            "Prefix length is shorthand for the mask, such as /24 for 255.255.255.0, meaning 24 network bits.",
+            "To find the network address, perform a logical AND of the IP address and the subnet mask."
+          ],
+          "examples": [
+            {
+              "label": "Finding the network address",
+              "code": "192.168.10.10 AND 255.255.255.0 = 192.168.10.0 (network address). Host portion is .10.",
+              "note": "The AND result is always the network address of the subnet."
+            }
+          ]
+        },
+        {
+          "id": "11.2",
+          "title": "Unicast, Broadcast, and Multicast",
+          "summary": "IPv4 transmission types differ by how many destinations receive a packet: unicast reaches one host, broadcast reaches all hosts on the network, and multicast reaches a subscribed group.",
+          "points": [
+            "Unicast is one-to-one delivery from a single source to a single destination host.",
+            "Broadcast is one-to-all delivery; every host on the network processes the frame.",
+            "Limited broadcast 255.255.255.255 stays on the local network, while a directed broadcast targets all hosts in a specific subnet.",
+            "Multicast is one-to-many delivery to hosts that have joined the group (224.0.0.0/4 range).",
+            "Broadcasts increase traffic and reduce performance, which is why networks are segmented."
+          ],
+          "tables": [
+            {
+              "caption": "IPv4 transmission types",
+              "headers": ["Type", "Delivery", "Destination"],
+              "rows": [
+                ["Unicast", "One-to-one", "A single destination host"],
+                ["Broadcast", "One-to-all", "All hosts on the network"],
+                ["Multicast", "One-to-many", "Hosts subscribed to the group"]
+              ]
+            }
+          ]
+        },
+        {
+          "id": "11.3",
+          "title": "Public, Private, and Special-Use Addresses",
+          "summary": "IPv4 addresses are divided into public addresses used on the internet and private RFC 1918 addresses used internally, plus reserved special-use ranges like loopback and link-local.",
+          "points": [
+            "RFC 1918 private ranges are 10.0.0.0/8, 172.16.0.0/12, and 192.168.0.0/16; they are not routable on the internet.",
+            "Loopback 127.0.0.0/8 refers to the local host; 127.0.0.1 is the common self-test address.",
+            "Link-local 169.254.0.0/16 is used automatically when a host cannot obtain an address from DHCP.",
+            "TEST-NET 192.0.2.0/24 is reserved for documentation and examples.",
+            "Legacy classful addressing: class A defaults to /8, class B to /16, and class C to /24."
+          ],
+          "tables": [
+            {
+              "caption": "Private and special-use IPv4 ranges",
+              "headers": ["Address type", "Range", "Notes"],
+              "rows": [
+                ["Private (RFC 1918)", "10.0.0.0/8", "10.0.0.0 - 10.255.255.255"],
+                ["Private (RFC 1918)", "172.16.0.0/12", "172.16.0.0 - 172.31.255.255"],
+                ["Private (RFC 1918)", "192.168.0.0/16", "192.168.0.0 - 192.168.255.255"],
+                ["Loopback", "127.0.0.0/8", "Self-reference (127.0.0.1)"],
+                ["Link-local", "169.254.0.0/16", "Auto-configuration when no DHCP"],
+                ["TEST-NET", "192.0.2.0/24", "Documentation and examples"]
+              ]
+            },
+            {
+              "caption": "Legacy classful default masks",
+              "headers": ["Class", "First octet", "Default mask"],
+              "rows": [
+                ["A", "1 - 126", "255.0.0.0 (/8)"],
+                ["B", "128 - 191", "255.255.0.0 (/16)"],
+                ["C", "192 - 223", "255.255.255.0 (/24)"]
+              ]
+            }
+          ]
+        },
+        {
+          "id": "11.4",
+          "title": "Network Segmentation and Broadcast Domains",
+          "summary": "Segmentation divides a network into smaller broadcast domains. Because routers do not forward broadcasts, each router interface terminates a broadcast domain.",
+          "points": [
+            "A broadcast domain is the set of devices that receive a broadcast frame sent by any one of them.",
+            "Switches forward broadcasts to all ports in the same LAN, so a single LAN is one broadcast domain.",
+            "Routers stop broadcasts, so each router interface defines a separate broadcast domain.",
+            "Segmentation limits broadcast traffic and improves network performance and security.",
+            "A router divides broadcast domains, while switches divide collision domains."
+          ]
+        },
+        {
+          "id": "11.5",
+          "title": "Subnetting on and Within an Octet Boundary",
+          "summary": "Subnetting borrows bits from the host portion to create more networks. The magic-number method finds each subnet block size, while borrowed bits determine the subnet count and remaining host bits determine the host count.",
+          "points": [
+            "Number of subnets equals 2^n, where n is the number of bits borrowed from the host portion.",
+            "Hosts per subnet equals 2^h minus 2, where h is the number of host bits remaining, subtracting the network and broadcast addresses.",
+            "The magic number is 256 minus the mask value of the octet being subnetted, such as 256 minus 192 equals 64.",
+            "Consecutive subnets start at multiples of the magic number, for example 0, 64, 128, 192 for a /26.",
+            "Example: 192.168.1.0/26 gives 4 subnets, each with 62 usable hosts."
+          ],
+          "examples": [
+            {
+              "label": "Subnetting a /24 into /26 subnets",
+              "code": "192.168.1.0/26 yields subnets 192.168.1.0, .64, .128, .192; each has 62 usable hosts (2^6 - 2).",
+              "note": "Two borrowed bits produce 2^2 = 4 subnets, each with 6 host bits."
+            }
+          ]
+        },
+        {
+          "id": "11.6",
+          "title": "Subnetting a /16 and /8 Across Multiple Octets",
+          "summary": "When subnetting larger blocks like /16 or /8, the borrowed bits can cross octet boundaries; apply the magic-number method to whichever octet the mask value falls in.",
+          "points": [
+            "A /16 (255.255.0.0) has 16 host bits; borrowing moves into the third octet.",
+            "For a /20 subnet of a /16, the magic number is 256 minus 240 equals 16, applied in the third octet.",
+            "Each /20 subnet gives 4094 usable hosts, and a single /16 yields 16 such subnets.",
+            "A /8 (255.0.0.0) is subnetted across the second and third octets, for example /12 subnets step by 16 in the second octet.",
+            "Track the octet where the mask is neither 255 nor 0; that is where subnet increments land."
+          ]
+        },
+        {
+          "id": "11.7",
+          "title": "Subnetting to Meet Requirements",
+          "summary": "To plan subnets for known needs, choose a mask whose subnet count meets the number of networks required and whose host count meets the largest host requirement.",
+          "points": [
+            "Determine the minimum number of bits to borrow so 2^n is at least the number of subnets needed.",
+            "Ensure the remaining host bits satisfy 2^h minus 2 is at least the largest subnet's host count.",
+            "Round requirements up to the next power of two when they are not exact powers.",
+            "Always account for the two unusable addresses in each subnet: network and broadcast.",
+            "Choose the mask that satisfies both constraints with the least wasted address space."
+          ]
+        },
+        {
+          "id": "11.8",
+          "title": "VLSM",
+          "summary": "VLSM allows using different subnet masks throughout a single major network so each subnet gets only as many addresses as it needs, avoiding wasted space.",
+          "points": [
+            "Traditional fixed-length subnet masking uses one mask for all subnets, often wasting addresses.",
+            "VLSM applies a mask tailored to each subnet's host requirement.",
+            "Allocate address space starting with the subnet requiring the most hosts, then move to smaller requirements.",
+            "VLSM is what makes classless routing (CIDR) effective in real designs.",
+            "A /30 supports only 2 usable hosts and is ideal for point-to-point links."
+          ]
+        },
+        {
+          "id": "11.9",
+          "title": "Structured Design and Address Planning",
+          "summary": "Good IP addressing is planned and structured rather than ad hoc; it uses hierarchical, contiguous blocks so routes can be summarized and the network can grow.",
+          "points": [
+            "Assign address blocks hierarchically following the physical and logical network structure.",
+            "Use contiguous address ranges so neighboring subnets can be summarized into a single advertisement.",
+            "Reserve space for growth when allocating subnets to locations.",
+            "Document the addressing plan, including subnet IDs, masks, and assigned uses.",
+            "Avoid overlapping address spaces or reusing pools across segments."
+          ]
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "IPv6 Addressing",
+      "sections": [
+        {
+          "id": "12.1",
+          "title": "IPv4 Issues and Coexistence",
+          "summary": "IPv4 is being exhausted despite technologies like NAT and CIDR, so networks deploy IPv6 using coexistence strategies: dual stack, tunneling, and translation.",
+          "points": [
+            "IPv4 address space is nearly exhausted; only about 4.3 billion public addresses exist.",
+            "NAT conserves addresses by sharing one public IP among many private hosts.",
+            "Dual stack runs IPv4 and IPv6 simultaneously on the same device and network.",
+            "Tunneling carries IPv6 packets inside IPv4 packets, for example 6to4, ISATAP, and Teredo.",
+            "Translation converts between IPv4 and IPv6 at the network edge, for example NAT64."
+          ]
+        },
+        {
+          "id": "12.2",
+          "title": "IPv6 Representation",
+          "summary": "IPv6 addresses are 128 bits written as eight groups of four hexadecimal digits (hextets); leading zeros in a group can be omitted and a double colon replaces the longest run of zero groups once.",
+          "points": [
+            "IPv6 is 128 bits, four times longer than IPv4, written as 32 hexadecimal digits.",
+            "Addresses are shown as eight hextets separated by colons.",
+            "Leading zeros within a hextet may be omitted, so 2001:0db8 becomes 2001:db8.",
+            "A double colon (::) compresses consecutive groups of zeros but may appear only once in an address.",
+            "Example: 2001:0db8:0000:0000:0000:0000:0000:0001 becomes 2001:db8::1."
+          ],
+          "examples": [
+            {
+              "label": "Compressing special addresses",
+              "code": "0:0:0:0:0:0:0:1 is written as ::1 (loopback). The all-zero address is written as ::.",
+              "note": "The loopback is ::1 and the unspecified address is ::."
+            }
+          ]
+        },
+        {
+          "id": "12.3",
+          "title": "IPv6 Address Types",
+          "summary": "IPv6 unicast addresses include Global Unicast, Link-Local, and Unique Local; multicast covers groups, anycast delivers to the nearest member, and ::1 and :: are special.",
+          "points": [
+            "Global Unicast Address (GUA) begins with 2000::/3 and is globally routable on the internet.",
+            "Link-Local Address (LLA) begins with fe80::/10 and works only on the local link.",
+            "Unique Local Address (ULA) begins with fc00::/7 and is private, similar to RFC 1918.",
+            "Multicast addresses (ff00::/8) deliver to all members of a group.",
+            "Anycast uses ordinary unicast format but routes to the nearest interface with that address; loopback is ::1 and unspecified is ::."
+          ],
+          "tables": [
+            {
+              "caption": "IPv6 address types",
+              "headers": ["Type", "Prefix", "Purpose"],
+              "rows": [
+                ["Global Unicast (GUA)", "2000::/3", "Routable on the internet"],
+                ["Unique Local (ULA)", "fc00::/7", "Private use, not internet-routable"],
+                ["Link-Local (LLA)", "fe80::/10", "Local link only"],
+                ["Multicast", "ff00::/8", "Group delivery"],
+                ["Loopback", "::1", "This host"],
+                ["Unspecified", "::", "No address yet"],
+                ["Anycast", "same as unicast", "Nearest interface with that address"]
+              ]
+            }
+          ]
+        },
+        {
+          "id": "12.4",
+          "title": "Static GUA and LLA Configuration",
+          "summary": "On a router or host you can statically assign a Global Unicast Address and a Link-Local Address, either through IOS interface configuration on the router or the netsh command on Windows.",
+          "points": [
+            "Enable IPv6 routing on the router with the global command ipv6 unicast-routing.",
+            "Assign a GUA on an interface with ipv6 address 2001:db8::1/64 in interface configuration mode.",
+            "Set a link-local address explicitly with ipv6 address fe80::1 link-local.",
+            "On Windows, use netsh interface ipv6 set address to configure addresses.",
+            "A /64 prefix is the normal length for a LAN-facing interface."
+          ],
+          "examples": [
+            {
+              "label": "Router static IPv6 configuration",
+              "code": "Router(config)# ipv6 unicast-routing\nRouter(config-if)# ipv6 address 2001:db8:acad:1::1/64\nRouter(config-if)# no shutdown",
+              "note": "Enable routing globally before configuring interface addresses."
+            }
+          ]
+        },
+        {
+          "id": "12.5",
+          "title": "Dynamic Addressing: SLAAC and DHCPv6",
+          "summary": "Hosts can get IPv6 addresses dynamically through ICMPv6 Router Solicitation/Advertisement and either SLAAC, stateless DHCPv6, or stateful DHCPv6; interface IDs come from EUI-64 or random generation.",
+          "points": [
+            "Hosts send Router Solicitations (RS); routers reply with Router Advertisements (RA) containing the prefix.",
+            "SLAAC lets the host build its full address from the advertised prefix and its own interface ID.",
+            "With SLAAC plus stateless DHCPv6, the router supplies the prefix and DHCPv6 supplies extra information like DNS servers.",
+            "Stateful DHCPv6 has the server assign both the address and other parameters.",
+            "Interface IDs are generated either by EUI-64, derived from the MAC address, or randomly for privacy."
+          ],
+          "tables": [
+            {
+              "caption": "IPv6 dynamic addressing methods",
+              "headers": ["Method", "Address assignment", "Other information (DNS)"],
+              "rows": [
+                ["SLAAC", "Host builds from RA prefix", "Provided by RA options, may be absent"],
+                ["Stateless DHCPv6", "Host builds from RA prefix", "Provided by DHCPv6 server"],
+                ["Stateful DHCPv6", "Provided by DHCPv6 server", "Provided by DHCPv6 server"]
+              ]
+            }
+          ]
+        },
+        {
+          "id": "12.6",
+          "title": "Dynamic Link-Local Addresses and Verification",
+          "summary": "A host builds its link-local address automatically from its MAC using EUI-64; verify addressing on the router with show ipv6 interface brief and related commands.",
+          "points": [
+            "Link-local addresses are generated automatically on every interface without manual configuration.",
+            "The default LLA uses the EUI-64 process: insert FFFE into the middle of the MAC and flip the U/L bit.",
+            "Verify with show ipv6 interface brief to list interfaces and their IPv6 addresses.",
+            "Use show ipv6 route to inspect the IPv6 routing table.",
+            "show ipv6 interface gives detail including the link-local address and joined multicast groups."
+          ]
+        },
+        {
+          "id": "12.7",
+          "title": "IPv6 Multicast Addresses",
+          "summary": "IPv6 uses well-known multicast groups for control-plane discovery and a solicited-node multicast address for neighbor discovery.",
+          "points": [
+            "ff02::1 is the all-nodes multicast group, reached by all IPv6 hosts on the link.",
+            "ff02::2 is the all-routers group.",
+            "ff02::5, ff02::9, and ff02::a are used by OSPFv3, RIPng, and EIGRP respectively.",
+            "The solicited-node multicast address is ff02::1:ff00:0/104, built from the last 24 bits of a unicast address.",
+            "Solicited-node multicast lets hosts find neighbors without disturbing the whole network."
+          ],
+          "tables": [
+            {
+              "caption": "Well-known IPv6 multicast groups",
+              "headers": ["Address", "Name", "Use"],
+              "rows": [
+                ["ff02::1", "All nodes", "All IPv6 hosts on the link"],
+                ["ff02::2", "All routers", "All IPv6 routers"],
+                ["ff02::5", "OSPFv3", "OSPF routing"],
+                ["ff02::9", "RIPng", "RIP next-generation routing"],
+                ["ff02::a", "EIGRP", "EIGRP routing"]
+              ]
+            }
+          ]
+        },
+        {
+          "id": "12.8",
+          "title": "IPv6 Subnetting",
+          "summary": "In IPv6 the interface identifier is standard /64 for every subnet, so subnetting is done by changing the subnet ID within the prefix rather than varying host bits.",
+          "points": [
+            "Every IPv6 subnet normally uses a /64 prefix, leaving 64 bits for the interface ID.",
+            "A /48 site prefix has 16 bits available for the subnet ID.",
+            "Changing the subnet ID creates new subnets: a /48 yields 2^16 = 65536 /64 subnets.",
+            "Unlike IPv4, the host portion is almost never subnetted because /64 is standard.",
+            "Subnets are commonly numbered incrementally in hexadecimal, such as 2001:db8:acad:1::/64, then ...:2::/64."
+          ]
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "title": "Build a Small Network",
+      "sections": [
+        {
+          "id": "17.1",
+          "title": "Devices, Topologies, Redundancy, and Traffic Management",
+          "summary": "A small network is built from end devices, intermediate devices like switches and routers, and correct cabling; the topology and redundancy choices shape performance and availability.",
+          "points": [
+            "End devices originate or receive data; intermediate devices such as switches, routers, and wireless access points direct it.",
+            "Switches connect hosts within a LAN; routers connect networks and provide the path to the internet.",
+            "Common topologies are star, where all devices connect to a central switch, full mesh, and partial mesh.",
+            "Redundancy adds backup paths and devices so a failure does not take down the network.",
+            "Traffic management balances load and controls congestion to maintain throughput (bandwidth) and responsiveness."
+          ]
+        },
+        {
+          "id": "17.2",
+          "title": "Protocols, TCP/UDP, and Well-Known Ports",
+          "summary": "Applications rely on protocols; TCP provides reliable, ordered delivery while UDP is lightweight and connectionless, making it suitable for voice, video, and DNS. QoS protects time-sensitive traffic.",
+          "points": [
+            "TCP is connection-oriented: it establishes a session, sequences segments, and acknowledges receipt, guaranteeing delivery.",
+            "UDP is connectionless with no acknowledgment and low overhead, suited for DNS, VoIP, live video, and streaming.",
+            "Well-known ports include HTTP 80, HTTPS 443, DNS 53, DHCP 67/68, Telnet 23, SSH 22, FTP 20/21, TFTP 69, SNMP 161, SMTP 25, POP3 110, and IMAP 143.",
+            "Voice and video use UDP because a dropped packet matters less than delay.",
+            "QoS (Quality of Service) prioritizes time-sensitive traffic to reduce latency, jitter, and packet loss."
+          ],
+          "tables": [
+            {
+              "caption": "TCP vs UDP",
+              "headers": ["Protocol", "Reliability", "Connection", "Key uses"],
+              "rows": [
+                ["TCP", "Reliable, sequencing, acknowledgments", "Connection-oriented", "Web, email, file transfer"],
+                ["UDP", "Unreliable, no acknowledgments", "Connectionless", "DNS, VoIP, video, streaming"]
+              ]
+            }
+          ]
+        },
+        {
+          "id": "17.3",
+          "title": "Scaling and Protocol Analysis",
+          "summary": "Networks scale best with a hierarchical, modular design; analyzing captured traffic with Wireshark is the key tool for studying protocols.",
+          "points": [
+            "Design hierarchically with access, distribution, and core layers so adding devices and sites stays manageable.",
+            "Modular design separates functions and lets each part scale independently.",
+            "Wireshark captures live packets on an interface and decodes each frame.",
+            "Filters narrow captured traffic, for example by protocol or source and destination.",
+            "Reading a frame shows the encapsulated data passing through each OSI layer as headers and payload."
+          ]
+        },
+        {
+          "id": "17.4",
+          "title": "Connectivity Verification",
+          "summary": "Ping tests reachability and round-trip time, extended ping gives more control, traceroute maps the path, and baselines record normal behavior to compare against later.",
+          "points": [
+            "Ping sends ICMP echo requests and reports replies and round-trip times.",
+            "Extended ping on IOS prompts for the source, repeat count, size, and other options.",
+            "Traceroute lists each router hop along the path; Windows uses tracert and Linux uses traceroute.",
+            "A baseline documents normal performance such as delay, loss, and throughput for later comparison.",
+            "Compare current results to the baseline to spot degradation before users notice."
+          ]
+        },
+        {
+          "id": "17.5",
+          "title": "Host and IOS Commands",
+          "summary": "Different commands reveal host or router configuration: Windows uses ipconfig, Linux uses ifconfig or ip addr, and Cisco routers expose status with show commands.",
+          "points": [
+            "Windows host: ipconfig /all shows full adapter configuration including MAC and DNS.",
+            "Linux host: ifconfig or ip addr display interface addressing.",
+            "arp -a shows the ARP cache mapping IP addresses to MAC addresses.",
+            "IOS: show ip interface brief lists interfaces with their IP and status; show ipv6 interface brief does the same for IPv6.",
+            "show cdp neighbors discovers directly connected Cisco devices, and show version displays the IOS version and hardware."
+          ]
+        },
+        {
+          "id": "17.6",
+          "title": "Troubleshooting Methodology",
+          "summary": "Troubleshooting follows a systematic path from identifying the problem to verifying the fix, using approaches like top-down, bottom-up, and divide-and-conquer; debug output helps but must be monitored and stopped.",
+          "points": [
+            "Steps: identify the problem, establish a theory of cause, test the theory, establish a plan of action, implement it, verify the solution, and document results.",
+            "Top-down starts at the application layer and works down the stack; bottom-up starts at the physical layer.",
+            "Divide-and-conquer starts at the middle layer and moves toward the likely culprit.",
+            "The global debug and terminal monitor commands stream real-time messages to the console.",
+            "If you cannot resolve the problem, escalate it to the right level after documenting what was tried."
+          ],
+          "tables": [
+            {
+              "caption": "Troubleshooting approaches",
+              "headers": ["Approach", "Starting point", "Best when"],
+              "rows": [
+                ["Top-down", "Application layer", "Problem suspected in software or applications"],
+                ["Bottom-up", "Physical layer", "Hardware or cabling suspected"],
+                ["Divide-and-conquer", "Middle layers", "Location of the issue is unknown"]
+              ]
+            }
+          ]
+        },
+        {
+          "id": "17.7",
+          "title": "Troubleshooting Scenarios",
+          "summary": "Common small-network faults are duplex mismatches, incorrect IP addressing, a wrong or unreachable default gateway, and DNS failures; each has distinctive symptoms.",
+          "points": [
+            "Duplex mismatch: one device is set to full duplex and the other half duplex, producing late collisions and errors.",
+            "IP addressing issues: a wrong subnet mask or invalid address prevents communication even with correct cabling.",
+            "Default gateway problems: a missing or incorrect gateway keeps local hosts from reaching remote networks.",
+            "DNS failures: the client cannot resolve names even though IP connectivity works, so ping by IP succeeds but ping by name fails.",
+            "Verify each layer in order to isolate whether the fault is physical, addressing, routing, or name resolution."
+          ]
+        }
+      ]
+    }
+  ]
+}

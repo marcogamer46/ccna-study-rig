@@ -1,0 +1,13 @@
+{
+  "name": "CCNA Study Rig",
+  "short_name": "CCNA Rig",
+  "description": "Active-recall study tool for CCNA ITN Modules 11, 12, 17.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0e1116",
+  "theme_color": "#0e1116",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

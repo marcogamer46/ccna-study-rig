@@ -1,0 +1,133 @@
+{
+  "scenarios": [
+    {
+      "id": "ts1",
+      "title": "Duplex mismatch",
+      "badge": "Layers 1–2",
+      "topology": "SW1 Gi0/1 <—> PC-A. Cross-over is normal; both run at 100 Mb/s.",
+      "symptom": "File transfers to PC-A crawl. pings succeed but latency spikes. SW1's port error counters climb.",
+      "console": [
+        { "cmd": "SW1# show interfaces g0/1", "out": "Gi0/1 is up, line protocol is up\n  Full-duplex, 100Mb/s, media type is RJ45\n  input errors 412, CRC 341, late collisions 88" }
+      ],
+      "steps": [
+        {
+          "prompt": "You see CRC and late-collision counters growing. What do you check next?",
+          "choices": [
+            {
+              "label": "show interfaces g0/1 (again, look closer)",
+              "correct": true,
+              "reveal": [
+                { "cmd": "SW1# show interfaces g0/1", "out": "Gi0/1 is up, line protocol is up\n  Full-duplex, 100Mb/s\n  input errors 531, CRC 428, late collisions 121\n  Duplex mismatch detected" }
+              ],
+              "why": "Late collisions + CRC errors on a FastEthernet link are the classic signature of a duplex mismatch."
+            },
+            { "label": "ping 192.168.1.1 (the gateway)", "correct": false, "why": "Ping succeeds — connectivity is up. It won't explain the poor throughput or the error counters." },
+            { "label": "show version", "correct": false, "why": "show version reports IOS image and uptime — nothing about the link's duplex state." }
+          ]
+        },
+        {
+          "prompt": "What is the likely root cause?",
+          "choices": [
+            { "label": "Duplex mismatch (one side full, other half)", "correct": true, "reveal": [], "why": "One end is stuck at half-duplex, the other full-duplex. The half side sees collisions from the full side's simultaneous send, producing late collisions and CRC errors." },
+            { "label": "Bad cable / CRC from interference", "correct": false, "why": "A bad cable gives high CRC but not a pattern of late collisions tied to duplex." },
+            { "label": "Wrong subnet mask", "correct": false, "why": "Wrong mask would break reachability, not cause late collisions." }
+          ]
+        }
+      ],
+      "resolution": "Set both ends the same: either both auto-negotiate, or force full-duplex/100 on both the switch port and the NIC. After the fix, error counters stop incrementing."
+    },
+    {
+      "id": "ts2",
+      "title": "Wrong subnet mask",
+      "badge": "Layer 3",
+      "topology": "PC-A (192.168.1.10) and PC-B (192.168.1.20) on the same switch VLAN; router .1 is the gateway.",
+      "symptom": "PC-A can ping its own address and the router but cannot ping PC-B, even though they are on the same /24.",
+      "console": [
+        { "cmd": "PC-A> ipconfig", "out": "IPv4 Address. . . . . . . . . : 192.168.1.10\nSubnet Mask . . . . . . . . . : 255.255.0.0\nDefault Gateway . . . . . . . : 192.168.1.1" }
+      ],
+      "steps": [
+        {
+          "prompt": "PC-A can't reach PC-B. What's the next diagnostic?",
+          "choices": [
+            { "label": "ipconfig /all on PC-A", "correct": true, "reveal": [
+                { "cmd": "PC-A> ipconfig /all", "out": "IPv4 Address. . . . . . . . . : 192.168.1.10\nSubnet Mask . . . . . . . . . : 255.255.0.0\nDefault Gateway . . . . . . . : 192.168.1.1" }
+              ], "why": "The mask 255.255.0.0 (/16) makes PC-A treat the whole 192.168.0.0/16 as local — so it never sends to the gateway for 192.168.1.20, and PC-B (correctly /24) does the same the other way." },
+            { "label": "ping 8.8.8.8", "correct": false, "why": "That tests Internet path, not the same-LAN reachability that's failing." },
+            { "label": "arp -a", "correct": false, "why": "ARP shows only entries the host already resolved — it won't show why PC-A skips the gateway." }
+          ]
+        },
+        {
+          "prompt": "What is the root cause?",
+          "choices": [
+            { "label": "Wrong subnet mask on PC-A", "correct": true, "reveal": [], "why": "Hosts must agree on the mask to decide whether a destination is local or remote. The /16 breaks that decision for both." },
+            { "label": "Wrong default gateway", "correct": false, "why": "The gateway address is correct; the mask is what's corrupting the local/remote decision." },
+            { "label": "PC-B is powered off", "correct": false, "why": "Then PC-A's ARP would get no reply at all — but the mask is already visible as wrong on PC-A." }
+          ]
+        }
+      ],
+      "resolution": "Change PC-A's mask to 255.255.255.0 (/24). Both hosts now agree 192.168.1.20 is local and PC-A can ARP it."
+    },
+    {
+      "id": "ts3",
+      "title": "Missing default gateway",
+      "badge": "Layer 3",
+      "topology": "PC-A (192.168.1.10/24) on VLAN 10; router R1 (.1) provides the gateway to the Internet.",
+      "symptom": "PC-A can reach PC-B on the same LAN and the router, but cannot reach anything off-subnet (e.g., 8.8.8.8).",
+      "console": [
+        { "cmd": "PC-A> ping 192.168.1.1", "out": "Reply from 192.168.1.1: bytes=32 time<1ms TTL=64" }
+      ],
+      "steps": [
+        {
+          "prompt": "Same-LAN works, off-subnet fails. What do you inspect?",
+          "choices": [
+            { "label": "ipconfig /all (check default gateway)", "correct": true, "reveal": [
+                { "cmd": "PC-A> ipconfig /all", "out": "IPv4 Address. . . . . . . . . : 192.168.1.10\nSubnet Mask . . . . . . . . . : 255.255.255.0\nDefault Gateway . . . . . . . : 0.0.0.0" }
+              ], "why": "A gateway of 0.0.0.0 (or blank) means the host has no route off-subnet — it can't even attempt the hop to R1 for remote destinations." },
+            { "label": "arp -a", "correct": false, "why": "ARP only matters for local delivery; there's nothing wrong with local delivery here." },
+            { "label": "ping 8.8.8.8", "correct": false, "why": "You already know it fails; it doesn't tell you why." }
+          ]
+        },
+        {
+          "prompt": "What is the root cause?",
+          "choices": [
+            { "label": "No default gateway configured on PC-A", "correct": true, "reveal": [], "why": "Without a default gateway, the host discards off-subnet traffic — there is no next hop to send it to." },
+            { "label": "R1 is down", "correct": false, "why": "But PC-A can ping 192.168.1.1, so R1 (and the link) is up." },
+            { "label": "DNS is broken", "correct": false, "why": "DNS would explain name resolution failures, not a bare-IP failure to 8.8.8.8." }
+          ]
+        }
+      ],
+      "resolution": "Configure PC-A's default gateway as 192.168.1.1. Off-subnet traffic now routes through R1."
+    },
+    {
+      "id": "ts4",
+      "title": "DNS failure",
+      "badge": "Application",
+      "topology": "PC-A (192.168.1.10/24, gateway 192.168.1.1). Internet reachable by IP.",
+      "symptom": "PC-A can ping 8.8.8.8 (pure IP) but `ping www.cisco.com` fails with 'unable to resolve'. The browser shows DNS errors.",
+      "console": [
+        { "cmd": "PC-A> ping 8.8.8.8", "out": "Reply from 8.8.8.8: bytes=32 time=24ms TTL=52" }
+      ],
+      "steps": [
+        {
+          "prompt": "IP works, names don't. What's the next test?",
+          "choices": [
+            { "label": "nslookup www.cisco.com", "correct": true, "reveal": [
+                { "cmd": "PC-A> nslookup www.cisco.com", "out": "Server:  UnKnown\nAddress:  192.168.1.1\n\n*** UnKnown can't find www.cisco.com: Non-existent domain" }
+              ], "why": "nslookup isolates DNS specifically. A timeout / non-existent-domain reply points straight at DNS configuration, not routing." },
+            { "label": "ping 192.168.1.1", "correct": false, "why": "Gateway ping already succeeds; it won't reveal anything about name resolution." },
+            { "label": "traceroute 8.8.8.8", "correct": false, "why": "Traceroute verifies the path to the IP, which already works." }
+          ]
+        },
+        {
+          "prompt": "What is the root cause?",
+          "choices": [
+            { "label": "DNS server misconfigured / unreachable", "correct": true, "reveal": [], "why": "With a working IP path but failing resolution, the DNS server setting (or the server itself) is the problem — the resolver is pointed at something that can't answer." },
+            { "label": "Default gateway wrong", "correct": false, "why": "The gateway is fine — 8.8.8.8 pings through it." },
+            { "label": "The site is down", "correct": false, "why": "The error is a resolution failure (name ≠ address), not a connection refusal — the site being down would give a different error." }
+          ]
+        }
+      ],
+      "resolution": "Point PC-A's DNS to a working server (e.g., 8.8.8.8) or fix the internal DNS forwarder. Name resolution starts working while IP paths stay unchanged."
+    }
+  ]
+}

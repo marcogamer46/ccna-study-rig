@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CCNA ITN study rig: trainers, notes, flashcards, quiz, troubleshooting sim.">
+  <title>CCNA Study Rig</title>
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">CCNA Study Rig<span class="sub">Modules 11 · 12 · 17</span></div>
+    <div class="spacer"></div>
+    <button id="themeBtn" class="iconbtn" title="Toggle theme">◐</button>
+  </header>
+
+  <nav class="nav" id="nav"></nav>
+
+  <main id="view">
+    <div class="card" style="text-align:center;padding:40px;">Loading…</div>
+  </main>
+
+  <!-- bundled content data (works offline, no server needed) -->
+  <script src="data/content.js"></script>
+  <!-- core libs -->
+  <script src="js/lib/net.js"></script>
+  <script src="js/lib/ipv6.js"></script>
+  <script src="js/lib/util.js"></script>
+  <!-- app modules -->
+  <script src="js/progress.js"></script>
+  <script src="js/trainers.js"></script>
+  <script src="js/quiz.js"></script>
+  <script src="js/flashcards.js"></script>
+  <script src="js/tsim.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
